@@ -1,6 +1,7 @@
 import sys
 import time
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QMessageBox, QMenu
+from PyQt5.QtMultimedia import QSound
 from PyQt5.QtCore import Qt, QTimer, QPoint
 from PyQt5.QtGui import QMovie, QPixmap, QFontDatabase, QFont
 import pyautogui
@@ -26,16 +27,16 @@ class CatBreakReminder(QMainWindow):
 
         # --- Load Images and Animations ---
         # Background image
-        self.background_pixmap = QPixmap('sprites-test/cat_house.png')
+        self.background_pixmap = QPixmap('sprites/cat_house.png')
 
         # Cat animations using QMovie
-        self.movie_idle = QMovie('sprites-test/idle1_144.gif')
-        self.movie_sleep = QMovie('sprites-test/sleep.gif')
-        self.movie_drink = QMovie('sprites-test/idle_to_sleep.gif')
-        self.movie_stretch = QMovie('sprites-test/walk_negative.gif')
-        self.movie_cry = QMovie('sprites-test/walk_positive.gif')
+        self.movie_idle = QMovie('sprites/idle1_144.gif')
+        self.move_excited = QMovie('sprites/excited_144.gif')
+        self.movie_drink = QMovie('sprites/water_144.gif')
+        self.move_dance = QMovie('sprites/dance_144.gif')
+        self.movie_cry = QMovie('sprites/cry_144.gif')
         # Dead cat will be a static image
-        self.dead_pixmap = QPixmap('sprites-test/DeadCat.png')
+        self.dead_pixmap = QPixmap('sprites/DeadCat.png')
 
         # --- Create UI Elements ---
         # Background label
@@ -74,7 +75,7 @@ class CatBreakReminder(QMainWindow):
      
         # --- Initialize Reminder Timers ---
         self.start_time = time.time()
-        self.water_interval = 40 * 60      # 40 minutes
+        self.water_interval = 0.1 * 60      # 40 minutes
         self.eye_interval = 20 * 60        # 20 minutes
         self.stretch_interval = 2 * 60 * 60 # 2 hours
 
@@ -110,18 +111,24 @@ class CatBreakReminder(QMainWindow):
 
         # Water reminder
         if current_time - self.last_water_time >= self.water_interval:
+            QSound.play("meow.wav")
+            self.change_animation(self.movie_drink, "Cat is drinking water!")
             result = self.show_notification("Time to drink some water!", "water")
             if result == QMessageBox.Yes:
                 self.last_water_time = current_time
 
         # Eye break reminder
         if current_time - self.last_eye_time >= self.eye_interval:
+            QSound.play("meow.wav")
+            self.change_animation(self.move_excited, "Cat is napping while you rest your eyes!")
             result = self.show_notification("Time to take an eye break! Look at something far away for 20 seconds.", "eye")
             if result == QMessageBox.Yes:
                 self.last_eye_time = current_time
 
         # Stretch reminder
         if current_time - self.last_stretch_time >= self.stretch_interval:
+            QSound.play("meow.wav")
+            self.change_animation(self.move_dance, "Cat is stretching with you!")
             result = self.show_notification("Time to take a stretch break!", "stretch")
             if result == QMessageBox.Yes:
                 self.last_stretch_time = current_time
@@ -132,15 +139,7 @@ class CatBreakReminder(QMainWindow):
                                      message + "\n\nDid you complete this task?",
                                      QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.Yes:
-            # Change animation based on the reminder type
-            if animation_type == "water":
-                self.change_animation(self.movie_drink, "Cat is drinking water!")
-            elif animation_type == "eye":
-                self.change_animation(self.movie_sleep, "Cat is napping while you rest your eyes!")
-            elif animation_type == "stretch":
-                self.change_animation(self.movie_stretch, "Cat is stretching with you!")
-            # Reset back to idle after 5 seconds
-            QTimer.singleShot(5000, self.reset_to_idle)
+            self.change_animation(self.movie_idle, "Cat is watching you work...")
             return reply
         else:
             # If first answer is No, show crying animation and ask again
@@ -148,7 +147,7 @@ class CatBreakReminder(QMainWindow):
             second_reply = QMessageBox.question(self, "Cat Reminder",
                                                 "Are you sure you didn't complete the task?",
                                                 QMessageBox.Yes | QMessageBox.No)
-            if second_reply == QMessageBox.No:
+            if second_reply == QMessageBox.Yes:
                 self.cat_die()
             else:
                 QTimer.singleShot(5000, self.reset_to_idle)
@@ -182,13 +181,52 @@ class CatBreakReminder(QMainWindow):
         if event.buttons() == Qt.LeftButton:
             self.move(self.pos() + event.pos() - self.offset)
 
-     # --- Right-click context menu ---
+      # --- Context Menu with additional options ---
     def contextMenuEvent(self, event):
         menu = QMenu(self)
+        # chat_action = menu.addAction("Chat with Cat")
+        # wellness_action = menu.addAction("Wellness Advice")
+        # increase_action = menu.addAction("Increase Size")
+        # decrease_action = menu.addAction("Decrease Size")
         quit_action = menu.addAction("Quit")
         action = menu.exec_(self.mapToGlobal(event.pos()))
+        # if action == chat_action:
+        #     chat_dialog = ChatDialog(self)
+        #     chat_dialog.exec_()
+        # elif action == wellness_action:
+        #     wellness_dialog = WellnessDialog(self)
+        #     wellness_dialog.exec_()
+        # elif action == increase_action:
+        #     self.increase_size()
+        # elif action == decrease_action:
+        #     self.decrease_size()
         if action == quit_action:
             self.close()
+
+    # def increase_size(self):
+    #     # Increase current window size by 20%
+    #     rect = self.geometry()
+    #     new_width = int(rect.width() * 1.2)
+    #     new_height = int(rect.height() * 1.2)
+    #     screen_height = pyautogui.size().height
+    #     self.setGeometry(0, screen_height - new_height, new_width, new_height)
+    #     self.update_layout(new_width, new_height)
+
+    # def decrease_size(self):
+    #     # Decrease current window size by 20%
+    #     rect = self.geometry()
+    #     new_width = int(rect.width() * 0.8)
+    #     new_height = int(rect.height() * 0.8)
+    #     screen_height = pyautogui.size().height
+    #     self.setGeometry(0, screen_height - new_height, new_width, new_height)
+    #     self.update_layout(new_width, new_height)
+
+    # def update_layout(self, new_width, new_height):
+    #     # Update geometry of child widgets based on new window size
+    #     self.background_label.setGeometry(0, 0, new_width, new_height)
+    #     self.cat_label.setGeometry(0, 0, new_width, new_height)
+    #     self.timer_label.setGeometry(0, new_height - 60, new_width, 20)
+    #     self.status_label.setGeometry(0, new_height - 40, new_width, 20)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
