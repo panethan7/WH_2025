@@ -20,16 +20,16 @@ class CatBreakReminder(QMainWindow):
 
         # --- Load Images and Animations ---
         # Background image
-        self.background_pixmap = QPixmap('sprites-test/cat_house.png')
+        self.background_pixmap = QPixmap('sprites/cat_house.png')
 
         # Cat animations using QMovie
-        self.movie_idle = QMovie('sprites-test/idle1_144.gif')
-        self.movie_sleep = QMovie('sprites-test/sleep.gif')
-        self.movie_drink = QMovie('sprites-test/idle_to_sleep.gif')
-        self.movie_stretch = QMovie('sprites-test/walk_negative.gif')
-        self.movie_cry = QMovie('sprites-test/walk_positive.gif')
+        self.movie_idle = QMovie('sprites/idle1_144.gif')
+        self.movie_sleep = QMovie('sprites/sleep.gif')
+        self.movie_drink = QMovie('sprites/idle_to_sleep.gif')
+        self.movie_stretch = QMovie('sprites/walk_negative.gif')
+        self.movie_cry = QMovie('sprites/walk_positive.gif')
         # Dead cat will be a static image
-        self.dead_pixmap = QPixmap('sprites-test/DeadCat.png')
+        self.dead_pixmap = QPixmap('sprites/DeadCat.png')
 
         # --- Create UI Elements ---
         # Background label
