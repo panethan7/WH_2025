@@ -1,6 +1,7 @@
 import sys
 import time
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QMessageBox, QMenu
+from PyQt5.QtMultimedia import QSound
 from PyQt5.QtCore import Qt, QTimer, QPoint
 from PyQt5.QtGui import QMovie, QPixmap
 import pyautogui
@@ -63,7 +64,7 @@ class CatBreakReminder(QMainWindow):
 
         # --- Initialize Reminder Timers ---
         self.start_time = time.time()
-        self.water_interval = 40 * 60      # 40 minutes
+        self.water_interval = 0.1 * 60      # 40 minutes
         self.eye_interval = 20 * 60        # 20 minutes
         self.stretch_interval = 2 * 60 * 60 # 2 hours
 
@@ -99,6 +100,7 @@ class CatBreakReminder(QMainWindow):
 
         # Water reminder
         if current_time - self.last_water_time >= self.water_interval:
+            QSound.play("meow.wav")
             self.change_animation(self.movie_drink, "Cat is drinking water!")
             result = self.show_notification("Time to drink some water!", "water")
             if result == QMessageBox.Yes:
@@ -106,6 +108,7 @@ class CatBreakReminder(QMainWindow):
 
         # Eye break reminder
         if current_time - self.last_eye_time >= self.eye_interval:
+            QSound.play("meow.wav")
             self.change_animation(self.move_excited, "Cat is napping while you rest your eyes!")
             result = self.show_notification("Time to take an eye break! Look at something far away for 20 seconds.", "eye")
             if result == QMessageBox.Yes:
@@ -113,6 +116,7 @@ class CatBreakReminder(QMainWindow):
 
         # Stretch reminder
         if current_time - self.last_stretch_time >= self.stretch_interval:
+            QSound.play("meow.wav")
             self.change_animation(self.move_dance, "Cat is stretching with you!")
             result = self.show_notification("Time to take a stretch break!", "stretch")
             if result == QMessageBox.Yes:
