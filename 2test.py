@@ -1,6 +1,6 @@
 import sys
 import time
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QMessageBox, QMenu
 from PyQt5.QtCore import Qt, QTimer, QPoint
 from PyQt5.QtGui import QMovie, QPixmap
 import pyautogui
@@ -27,9 +27,9 @@ class CatBreakReminder(QMainWindow):
         self.movie_sleep = QMovie('sprites-test/sleep.gif')
         self.movie_drink = QMovie('sprites-test/idle_to_sleep.gif')
         self.movie_stretch = QMovie('sprites-test/walk_negative.gif')
-        self.movie_cry = QMovie('sprites/walk_positive.gif')
+        self.movie_cry = QMovie('sprites-test/walk_positive.gif')
         # Dead cat will be a static image
-        self.dead_pixmap = QPixmap('sprites/DeadCat.png')
+        self.dead_pixmap = QPixmap('sprites-test/DeadCat.png')
 
         # --- Create UI Elements ---
         # Background label
@@ -170,6 +170,14 @@ class CatBreakReminder(QMainWindow):
     def mouseMoveEvent(self, event):
         if event.buttons() == Qt.LeftButton:
             self.move(self.pos() + event.pos() - self.offset)
+
+     # --- Right-click context menu ---
+    def contextMenuEvent(self, event):
+        menu = QMenu(self)
+        quit_action = menu.addAction("Quit")
+        action = menu.exec_(self.mapToGlobal(event.pos()))
+        if action == quit_action:
+            self.close()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
