@@ -8,6 +8,9 @@ impath = 'sprites-test/'  # Path to sprite images
 # Define the transparency color (bright green)
 TRANSPARENT_COLOR = "#17f900"  # RGB value for pure green
 
+# Global flag for cat death
+cat_dead = False
+
 # Main window setup
 window = tk.Tk()
 window.title("Cat Break Reminder")
@@ -34,6 +37,8 @@ idle_frames = [tk.PhotoImage(file=impath + 'idle1.gif', format='gif -index %i' %
 sleep_frames = [tk.PhotoImage(file=impath + 'sleep.gif', format='gif -index %i' % i) for i in range(3)]
 drink_frames = [tk.PhotoImage(file=impath + 'idle_to_sleep.gif', format='gif -index %i' % i) for i in range(8)]
 stretch_frames = [tk.PhotoImage(file=impath + 'walk_negative.gif', format='gif -index %i' % i) for i in range(8)]
+cry_frames = [tk.PhotoImage(file=impath + 'walk_positive.gif', format='gif -index %i' % i) for i in range(3)]
+dead_image = tk.PhotoImage(file=impath + 'DeadCat.png')
 
 # Current animation state
 current_frames = idle_frames
@@ -46,7 +51,7 @@ cat_label.place(relx=0.5, rely=0.4, anchor="center")  # Position in the middle-u
 # Timer variables
 start_time = time.time()
 water_interval = 40 * 60  # 40 minutes in seconds
-eye_interval = 20 * 60    # 20 minutes in seconds
+eye_interval = 0.25 * 60    # 20 minutes in seconds
 stretch_interval = 2 * 60 * 60  # 2 hours in seconds
 
 # Status variables
@@ -69,14 +74,20 @@ timer_text = tk.StringVar()
 timer_label = tk.Label(ui_frame, textvariable=timer_text, bg='white', fg='black')
 timer_label.pack(fill=tk.X)
 
+def cat_die():
+    """Set the cat to a dead state, show the dead image, and stop animations/timers."""
+    global cat_dead, animation_state
+    cat_dead = True
+    animation_state = "dead"
+    status_text.set("The cat has died. RIP.")
+    cat_label.config(image=dead_image)
+
 # Function to show notification and handle cat animation
 def show_notification(message, animation_type):
-    global animation_state, current_frames
-    
-    # Show notification
+    global animation_state, current_frames, last_water_time, last_eye_time, last_stretch_time
+
     result = messagebox.askquestion("Cat Reminder", message + "\n\nDid you complete this task?")
     
-    # Update cat animation based on response and type
     if result == 'yes':
         if animation_type == "water":
             animation_state = "drink"
@@ -94,18 +105,37 @@ def show_notification(message, animation_type):
         # Reset to idle after 5 seconds
         window.after(5000, reset_to_idle)
     
+    elif result == 'no':
+        # Start crying animation and ask for confirmation
+        animation_state = "cry"
+        current_frames = cry_frames
+        status_text.set("Cat is crying because you didn't complete the task!")
+        second_result = messagebox.askquestion("Cat Reminder", "Are you sure you didn't complete the task?")
+        if second_result == 'no':
+            # Cat dies if user confirms they really didn't complete the task
+            cat_die()
+            return second_result
+        else:
+            # If the user changes their mind, reset after 5 seconds
+            window.after(5000, reset_to_idle)
+    
     return result
 
 # Reset to idle animation
 def reset_to_idle():
     global animation_state, current_frames
-    animation_state = "idle"
-    current_frames = idle_frames
-    status_text.set("Cat is watching you work...")
+    if not cat_dead:
+        animation_state = "idle"
+        current_frames = idle_frames
+        status_text.set("Cat is watching you work...")
 
 # Function to check timers
 def check_timers():
     global last_water_time, last_eye_time, last_stretch_time
+
+    # Stop timer checks if the cat is dead
+    if cat_dead:
+        return
     
     current_time = time.time()
     
@@ -143,6 +173,10 @@ def update_timer_display(current_time):
 
 # Function to update animation frames
 def update_animation(ind):
+    if cat_dead:
+        # Stop animation updates if the cat is dead.
+        return
+
     if current_frames and len(current_frames) > 0:
         frame = current_frames[ind % len(current_frames)]
         cat_label.config(image=frame)
@@ -183,11 +217,6 @@ def show_right_click_menu(event):
 
 # Bind right-click (Button-3 is right click on most systems)
 window.bind("<Button-3>", show_right_click_menu)
-
-
-# Exit button
-# exit_button = tk.Button(window, text="×", command=window.destroy, bg='red', fg='white')
-# exit_button.place(x=window_width-20, y=0, width=20, height=20)
 
 # Start timer check
 window.after(1000, check_timers)
