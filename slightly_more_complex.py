@@ -5,24 +5,32 @@ from tkinter import messagebox
 
 impath = 'sprites-test/'  # Path to sprite images
 
+# Define the transparency color (bright green)
+TRANSPARENT_COLOR = "#17f900"  # RGB value for pure green
+
 # Main window setup
 window = tk.Tk()
 window.title("Cat Break Reminder")
 window.overrideredirect(True)  # Removes window border
 window.wm_attributes('-topmost', True)  # Keep it on top
+window.config(bg=TRANSPARENT_COLOR)  # Set background to our transparent color
+window.attributes("-transparentcolor", TRANSPARENT_COLOR)  # Make this color transparent
 
 # Get screen size to place it at bottom-left
 screen_width, screen_height = pyautogui.size()
-window_width, window_height = 445, 404  # Slightly larger window
+window_width, window_height = 445, 404
 window.geometry(f'{window_width}x{window_height}+0+{screen_height - window_height}')
 
-# Background setup
+# Background setup - use a frame with the house image
+bg_frame = tk.Frame(window)
+bg_frame.place(x=0, y=0, width=window_width, height=window_height)
+
 bg_image = tk.PhotoImage(file=impath + 'cat_house.png')
-background = tk.Label(window, image=bg_image)
-background.place(x=0, y=0, relwidth=1, relheight=1)
+bg_label = tk.Label(bg_frame, image=bg_image, bd=0)
+bg_label.place(x=0, y=0)
 
 # Load cat sprites
-idle_frames = [tk.PhotoImage(file=impath + 'idle.gif', format='gif -index %i' % i) for i in range(5)]
+idle_frames = [tk.PhotoImage(file=impath + 'idle1.gif', format='gif -index %i' % i) for i in range(5)]
 sleep_frames = [tk.PhotoImage(file=impath + 'sleep.gif', format='gif -index %i' % i) for i in range(3)]
 drink_frames = [tk.PhotoImage(file=impath + 'idle_to_sleep.gif', format='gif -index %i' % i) for i in range(8)]
 stretch_frames = [tk.PhotoImage(file=impath + 'walk_negative.gif', format='gif -index %i' % i) for i in range(8)]
@@ -31,9 +39,9 @@ stretch_frames = [tk.PhotoImage(file=impath + 'walk_negative.gif', format='gif -
 current_frames = idle_frames
 animation_state = "idle"
 
-# Cat label
-cat_label = tk.Label(window, bd=0, bg='black')
-cat_label.pack(pady=50)
+# Cat label - set background to transparent color
+cat_label = tk.Label(window, bd=0, bg=TRANSPARENT_COLOR)
+cat_label.place(relx=0.5, rely=0.4, anchor="center")  # Position in the middle-upper area
 
 # Timer variables
 start_time = time.time()
@@ -46,16 +54,20 @@ last_water_time = start_time
 last_eye_time = start_time
 last_stretch_time = start_time
 
+# Create a frame for UI elements (not transparent)
+ui_frame = tk.Frame(window)
+ui_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
 # Status label
 status_text = tk.StringVar()
 status_text.set("Cat is watching you work...")
-status_label = tk.Label(window, textvariable=status_text, bg='white', fg='black')
-status_label.pack(side=tk.BOTTOM, fill=tk.X)
+status_label = tk.Label(ui_frame, textvariable=status_text, bg='white', fg='black')
+status_label.pack(fill=tk.X)
 
 # Timer indicator
 timer_text = tk.StringVar()
-timer_label = tk.Label(window, textvariable=timer_text, bg='white', fg='black')
-timer_label.pack(side=tk.BOTTOM, fill=tk.X)
+timer_label = tk.Label(ui_frame, textvariable=timer_text, bg='white', fg='black')
+timer_label.pack(fill=tk.X)
 
 # Function to show notification and handle cat animation
 def show_notification(message, animation_type):
@@ -131,17 +143,17 @@ def update_timer_display(current_time):
 
 # Function to update animation frames
 def update_animation(ind):
-    if current_frames and len(current_frames) > 0:  # Check if list exists and has items
-        frame = current_frames[ind % len(current_frames)]  # Use modulo to prevent index errors
-        cat_label.configure(image=frame)
+    if current_frames and len(current_frames) > 0:
+        frame = current_frames[ind % len(current_frames)]
+        cat_label.config(image=frame)
         ind = (ind + 1) % len(current_frames)
     else:
-        # If no frames, show a message
-        cat_label.configure(text="No frames loaded", image="")
+        cat_label.config(text="No frames loaded", image="")
         status_text.set("Error: No animation frames found!")
     
     # Schedule next animation update
     window.after(150, update_animation, ind)
+
 # Make window draggable
 def start_drag(event):
     window.x = event.x
@@ -162,9 +174,20 @@ window.bind("<ButtonPress-1>", start_drag)
 window.bind("<ButtonRelease-1>", stop_drag)
 window.bind("<B1-Motion>", drag)
 
+# Create a right-click (context) menu
+right_click_menu = tk.Menu(window, tearoff=0)
+right_click_menu.add_command(label="Quit", command=window.destroy)
+
+def show_right_click_menu(event):
+    right_click_menu.tk_popup(event.x_root, event.y_root)
+
+# Bind right-click (Button-3 is right click on most systems)
+window.bind("<Button-3>", show_right_click_menu)
+
+
 # Exit button
-exit_button = tk.Button(window, text="×", command=window.destroy, bg='red', fg='white')
-exit_button.place(x=window_width-20, y=0, width=20, height=20)
+# exit_button = tk.Button(window, text="×", command=window.destroy, bg='red', fg='white')
+# exit_button.place(x=window_width-20, y=0, width=20, height=20)
 
 # Start timer check
 window.after(1000, check_timers)
