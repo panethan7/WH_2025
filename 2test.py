@@ -132,7 +132,7 @@ class CatBreakReminder(QMainWindow):
             second_reply = QMessageBox.question(self, "Cat Reminder",
                                                 "Are you sure you didn't complete the task?",
                                                 QMessageBox.Yes | QMessageBox.No)
-            if second_reply == QMessageBox.No:
+            if second_reply == QMessageBox.Yes:
                 self.cat_die()
             else:
                 QTimer.singleShot(5000, self.reset_to_idle)
