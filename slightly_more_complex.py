@@ -3,7 +3,7 @@ import pyautogui
 import time
 from tkinter import messagebox
 
-impath = 'sprites/'  # Path to sprite images
+impath = 'sprites-test/'  # Path to sprite images
 
 # Main window setup
 window = tk.Tk()
@@ -13,19 +13,19 @@ window.wm_attributes('-topmost', True)  # Keep it on top
 
 # Get screen size to place it at bottom-left
 screen_width, screen_height = pyautogui.size()
-window_width, window_height = 200, 200  # Slightly larger window
+window_width, window_height = 445, 404  # Slightly larger window
 window.geometry(f'{window_width}x{window_height}+0+{screen_height - window_height}')
 
 # Background setup
-bg_image = tk.PhotoImage(file=impath + 'cat_house_bg.gif')
+bg_image = tk.PhotoImage(file=impath + 'cat_house.png')
 background = tk.Label(window, image=bg_image)
 background.place(x=0, y=0, relwidth=1, relheight=1)
 
 # Load cat sprites
-idle_frames = [tk.PhotoImage(file=impath + 'walk.gif', format='gif -index %i' % i) for i in range(4)]
-sleep_frames = [tk.PhotoImage(file=impath + 'sleep.gif', format='gif -index %i' % i) for i in range(4)]
-drink_frames = [tk.PhotoImage(file=impath + 'idle_to_sleep.gif', format='gif -index %i' % i) for i in range(4)]
-stretch_frames = [tk.PhotoImage(file=impath + 'walk_negative.gif', format='gif -index %i' % i) for i in range(6)]
+idle_frames = [tk.PhotoImage(file=impath + 'idle.gif', format='gif -index %i' % i) for i in range(5)]
+sleep_frames = [tk.PhotoImage(file=impath + 'sleep.gif', format='gif -index %i' % i) for i in range(3)]
+drink_frames = [tk.PhotoImage(file=impath + 'idle_to_sleep.gif', format='gif -index %i' % i) for i in range(8)]
+stretch_frames = [tk.PhotoImage(file=impath + 'walk_negative.gif', format='gif -index %i' % i) for i in range(8)]
 
 # Current animation state
 current_frames = idle_frames
@@ -131,14 +131,17 @@ def update_timer_display(current_time):
 
 # Function to update animation frames
 def update_animation(ind):
-    if len(current_frames) > 0:  # Ensure we have frames to display
-        frame = current_frames[ind]
+    if current_frames and len(current_frames) > 0:  # Check if list exists and has items
+        frame = current_frames[ind % len(current_frames)]  # Use modulo to prevent index errors
         cat_label.configure(image=frame)
         ind = (ind + 1) % len(current_frames)
+    else:
+        # If no frames, show a message
+        cat_label.configure(text="No frames loaded", image="")
+        status_text.set("Error: No animation frames found!")
     
     # Schedule next animation update
     window.after(150, update_animation, ind)
-
 # Make window draggable
 def start_drag(event):
     window.x = event.x
