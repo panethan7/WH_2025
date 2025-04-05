@@ -1,0 +1,13 @@
+Font: Dogicapixel
+
+to-do box: 
+
+mini inside text box : #f0e5d2
+background : #c88554
+actual text: #987e53 or #3b3227
+
+
+the time_label:
+
+background: #f0e5d2
+actual text: #987e53 or #3b3227

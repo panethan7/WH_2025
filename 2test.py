@@ -2,12 +2,18 @@ import sys
 import time
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QMessageBox, QMenu
 from PyQt5.QtCore import Qt, QTimer, QPoint
-from PyQt5.QtGui import QMovie, QPixmap
+from PyQt5.QtGui import QMovie, QPixmap, QFontDatabase, QFont
 import pyautogui
+ 
 
 class CatBreakReminder(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        # Load the custom font (dogicapixel.ttf)
+        font_id = QFontDatabase.addApplicationFont("dogica/TTF/dogicapixelbold.ttf")
+        font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
+        font = QFont(font_family, 6)  # Set font size 
 
         # Set window properties: frameless, always on top, translucent background
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
@@ -53,14 +59,19 @@ class CatBreakReminder(QMainWindow):
         self.status_label.setStyleSheet("background-color: white; color: black;")
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.setText("Cat is watching you work...")
-
+        self.status_label.setFont(font)  # Apply custom font
+        self.status_label.setStyleSheet("color: #3b3227; background-color: #f0e5d2;")  # change font and background colors
+       
         # Timer label (above status)
         self.timer_label = QLabel(self)
         self.timer_label.setGeometry(0, window_height - 60, window_width, 20)
         self.timer_label.setStyleSheet("background-color: white; color: black;")
         self.timer_label.setAlignment(Qt.AlignCenter)
         self.timer_label.setText("Water: --m | Eyes: --m | Stretch: --m")
-
+        self.timer_label.setFont(font)  # Apply custom font
+        self.timer_label.setStyleSheet("color: #3b3227; background-color: #f0e5d2;")  # Pastel Pink Change timer_label text color and background color 
+     
+     
         # --- Initialize Reminder Timers ---
         self.start_time = time.time()
         self.water_interval = 40 * 60      # 40 minutes
