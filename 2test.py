@@ -171,13 +171,52 @@ class CatBreakReminder(QMainWindow):
         if event.buttons() == Qt.LeftButton:
             self.move(self.pos() + event.pos() - self.offset)
 
-     # --- Right-click context menu ---
+      # --- Context Menu with additional options ---
     def contextMenuEvent(self, event):
         menu = QMenu(self)
+        # chat_action = menu.addAction("Chat with Cat")
+        # wellness_action = menu.addAction("Wellness Advice")
+        # increase_action = menu.addAction("Increase Size")
+        # decrease_action = menu.addAction("Decrease Size")
         quit_action = menu.addAction("Quit")
         action = menu.exec_(self.mapToGlobal(event.pos()))
+        # if action == chat_action:
+        #     chat_dialog = ChatDialog(self)
+        #     chat_dialog.exec_()
+        # elif action == wellness_action:
+        #     wellness_dialog = WellnessDialog(self)
+        #     wellness_dialog.exec_()
+        # elif action == increase_action:
+        #     self.increase_size()
+        # elif action == decrease_action:
+        #     self.decrease_size()
         if action == quit_action:
             self.close()
+
+    # def increase_size(self):
+    #     # Increase current window size by 20%
+    #     rect = self.geometry()
+    #     new_width = int(rect.width() * 1.2)
+    #     new_height = int(rect.height() * 1.2)
+    #     screen_height = pyautogui.size().height
+    #     self.setGeometry(0, screen_height - new_height, new_width, new_height)
+    #     self.update_layout(new_width, new_height)
+
+    # def decrease_size(self):
+    #     # Decrease current window size by 20%
+    #     rect = self.geometry()
+    #     new_width = int(rect.width() * 0.8)
+    #     new_height = int(rect.height() * 0.8)
+    #     screen_height = pyautogui.size().height
+    #     self.setGeometry(0, screen_height - new_height, new_width, new_height)
+    #     self.update_layout(new_width, new_height)
+
+    # def update_layout(self, new_width, new_height):
+    #     # Update geometry of child widgets based on new window size
+    #     self.background_label.setGeometry(0, 0, new_width, new_height)
+    #     self.cat_label.setGeometry(0, 0, new_width, new_height)
+    #     self.timer_label.setGeometry(0, new_height - 60, new_width, 20)
+    #     self.status_label.setGeometry(0, new_height - 40, new_width, 20)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
