@@ -1,0 +1,26 @@
+import tkinter as tk
+import pyautogui
+
+impath = 'sprites/'
+
+window = tk.Tk()
+window.overrideredirect(True)  # Removes window border
+window.wm_attributes('-topmost', True)  # Keep it on top
+
+# Get screen size to place it at bottom-left
+screen_width, screen_height = pyautogui.size()
+window.geometry(f'100x100+0+{screen_height - 100}')
+
+frames = [tk.PhotoImage(file=impath + 'falling.gif', format='gif -index %i' % i) for i in range(2)]
+
+label = tk.Label(window, bd=0, bg='black')
+label.pack()
+
+def update(ind):
+  frame = frames[ind]
+  label.configure(image=frame)
+  ind = (ind + 1) % len(frames)
+  window.after(100, update, ind)
+
+window.after(0, update, 0)
+window.mainloop()
