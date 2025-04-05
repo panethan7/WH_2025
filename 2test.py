@@ -24,10 +24,10 @@ class CatBreakReminder(QMainWindow):
 
         # Cat animations using QMovie
         self.movie_idle = QMovie('sprites/idle1_144.gif')
-        self.movie_sleep = QMovie('sprites/sleep.gif')
-        self.movie_drink = QMovie('sprites/idle_to_sleep.gif')
-        self.movie_stretch = QMovie('sprites/walk_negative.gif')
-        self.movie_cry = QMovie('sprites/walk_positive.gif')
+        self.move_excited = QMovie('sprites/excited_144.gif')
+        self.movie_drink = QMovie('sprites/water_144.gif')
+        self.move_dance = QMovie('sprites/dance_144.gif')
+        self.movie_cry = QMovie('sprites/cry_144.gif')
         # Dead cat will be a static image
         self.dead_pixmap = QPixmap('sprites/DeadCat.png')
 
@@ -65,7 +65,7 @@ class CatBreakReminder(QMainWindow):
         self.start_time = time.time()
         self.water_interval = 40 * 60      # 40 minutes
         self.eye_interval = 20 * 60        # 20 minutes
-        self.stretch_interval = 2 * 60 * 60 # 2 hours
+        self.stretch_interval = 0.1 * 60 # 2 hours
 
         self.last_water_time = self.start_time
         self.last_eye_time = self.start_time
@@ -99,18 +99,21 @@ class CatBreakReminder(QMainWindow):
 
         # Water reminder
         if current_time - self.last_water_time >= self.water_interval:
+            self.change_animation(self.movie_drink, "Cat is drinking water!")
             result = self.show_notification("Time to drink some water!", "water")
             if result == QMessageBox.Yes:
                 self.last_water_time = current_time
 
         # Eye break reminder
         if current_time - self.last_eye_time >= self.eye_interval:
+            self.change_animation(self.move_excited, "Cat is napping while you rest your eyes!")
             result = self.show_notification("Time to take an eye break! Look at something far away for 20 seconds.", "eye")
             if result == QMessageBox.Yes:
                 self.last_eye_time = current_time
 
         # Stretch reminder
         if current_time - self.last_stretch_time >= self.stretch_interval:
+            self.change_animation(self.move_dance, "Cat is stretching with you!")
             result = self.show_notification("Time to take a stretch break!", "stretch")
             if result == QMessageBox.Yes:
                 self.last_stretch_time = current_time
@@ -121,15 +124,7 @@ class CatBreakReminder(QMainWindow):
                                      message + "\n\nDid you complete this task?",
                                      QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.Yes:
-            # Change animation based on the reminder type
-            if animation_type == "water":
-                self.change_animation(self.movie_drink, "Cat is drinking water!")
-            elif animation_type == "eye":
-                self.change_animation(self.movie_sleep, "Cat is napping while you rest your eyes!")
-            elif animation_type == "stretch":
-                self.change_animation(self.movie_stretch, "Cat is stretching with you!")
-            # Reset back to idle after 5 seconds
-            QTimer.singleShot(5000, self.reset_to_idle)
+            self.change_animation(self.movie_idle, "Cat is watching you work...")
             return reply
         else:
             # If first answer is No, show crying animation and ask again
