@@ -41,7 +41,7 @@ Purrfect Care was built to merge technology with self-care practices. Our goal i
   - Overcame screen size variability challenges with coordinate-based design adjustments.
 - **Lessons Learned:**  
   - The importance of adaptive design in building user-friendly applications.
-  - Balancing fun and productivity while maintaining a professional look.
+  - The significance of balancing fun and productivity while maintaining a professional look.
 
 ## Getting Started
 
@@ -80,11 +80,11 @@ Purrfect Care was built to merge technology with self-care practices. Our goal i
 
 ## Usage
 
-When Purrfect Care launches, Patches sits at the bottom of your screen, watching you work. At scheduled intervals, a centered notification dialog prompts you to take a break. You can then:
+When Purrfect Care launches, Patches sits at the bottom of your screen, watching you work. At scheduled intervals, a centered notification dialog prompts you to take a break. You can then right-click on the main window to:
 
 - **Chat with Patches:** Open the chat window to receive motivational messages and engage in a fun conversation.
 - **Manage Your Tasks:** Use the integrated to-do list to organize both your work and wellness tasks.
-- **Customize Your Experience:** Right-click on the main window to access additional settings and options.
+- **Customize Your Experience:** Access additional settings and options.
 
 ## Project Structure
 
