@@ -102,10 +102,6 @@ purrfect-care/
 └── README.md                # This documentation file
 ```
 
-## License
-
-This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
-
 ## Acknowledgments
 
 - **Wellness Inspiration:** Special thanks to the Hackathon organizers and the wellness community for inspiring this project.
@@ -113,6 +109,7 @@ This project is licensed under the MIT License – see the [LICENSE](LICENSE) fi
 - **Cat Assets:** Provided by [ToffeeCraft](https://toffeecraft.itch.io/).
 - **Font:** "dogica" downloaded from [DaFont](https://www.dafont.com/).
 - **Tool Makers:** Gratitude to the developers of PyQt5, Pygame, and Google Generative AI for their robust, open-source tools.
+- **LLM support:** ChatGPT & Claude
 - **Team Effort:** A big shout-out to our team for their creativity, resilience, and passion in bringing Purrfect Care to life.
 
 ---
