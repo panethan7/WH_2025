@@ -1,65 +1,75 @@
-# Purrfect Care – Your Wellness Companion
+# Purrfect Care 🐱‍💻
 
-**The cutest cat you've ever seen is here to peer pressure you into taking care of yourself while you work!**
+Purrfect Care is a **lightweight desktop app** that injects self‑care into your workflow. Animated mascot **Patches** appears on‑screen to remind you to hydrate, stretch, breathe, and generally *look up* from the code‑fog.
 
-Purrfect Care is a desktop wellness application designed to promote healthy work habits by reminding you to take breaks. Inspired by the Wellness track at our hackathon, our playful cat—Patches—motivates you to step away from your screen, drink water, stretch, and simply look up from your work.
+---
 
-## Overview
+## Why We Built It
+Modern work culture rewards grind—but bodies and minds have limits. Research shows that *micro‑breaks* boost creativity, focus, and long‑term health. We asked: **How can we make breaks irresistible?** Answer: an adorable cat that refuses to be ignored.
 
-In today’s demanding work environment, maintaining physical and mental health is crucial. Purrfect Care uses engaging cat animations and interactive notifications to ensure you never miss a break. Whether you're deep in coding or immersed in creative work, Patches is there to help you practice self-care without sacrificing productivity.
+---
 
-## Features
+## Key Features
+|  |  |
+|---|---|
+| ⏰ **Smart Break Timers** | Gentle, customizable prompts for water, eye rests, posture checks, and walk‑arounds |
+| 🐾 **Animated Cat Companion** | Pixel‑perfect GIFs of Patches stretching, yawning, or batting your cursor |
+| 💬 **AI Chat** | Powered by OpenAI ChatGPT & Anthropic Claude—receive pep talks, jokes, or mindfulness tips |
+| ✅ **Built‑In To‑Do List** | Keep tasks and wellness goals in one minimalist pane |
+| 🖥️ **Adaptive Layout** | Coordinate‑based placement keeps UI sharp on any resolution |
+| 🎒 **Portable & Lightweight** | Single‑folder install—perfect for hackathons, coffee shops, or focus sprints |
 
-- **Wellness Break Reminders:** Timed notifications prompt you to hydrate, rest your eyes, or stretch.
-- **Animated Cat Companion:** Patches provides fun, visual encouragement to step away and care for yourself.
-- **Interactive Notifications:** Custom, draggable dialogs appear centered on your screen so you never miss your break.
-- **Chat with Patches:** Enjoy uplifting conversations with your AI-powered cat friend to boost your mood and well-being.
-- **Built-In To-Do List:** Organize your tasks alongside your wellness breaks within one integrated interface.
-- **Adaptive Design:** Our coordinate-based design works across various screen sizes, ensuring a consistent user experience.
-- **Portable & Lightweight:** Ideal for hackathons and busy workdays, helping you integrate wellness effortlessly into your routine.
+---
 
-## Inspiration & What It Does
+## Tech Stack
+- **Python 3.10**
+- **PyQt5** for UI
+- **Pygame** for sprite animation
+- **PyAutoGUI** for screen metrics
+- **OpenAI / Anthropic SDKs** for conversational AI
 
-**Inspiration:**  
-Purrfect Care was built to merge technology with self-care practices. Our goal is to help you stay motivated, healthy, and productive throughout your workday by blending fun, interactive elements with essential wellness reminders.
+### Hackathon Challenges Solved
+1. **Screen‑Size Agnosticism** – dynamic coordinate system for consistent placement.
+2. **Context‑Aware Notifications** – timers pause when you’re in full‑screen video calls or presentation mode.
 
-**What It Does:**  
-- Acts as a timer that reminds you to take necessary breaks.
-- Uses engaging cat animations to encourage you to step away from the screen.
-- Integrates chat and task management features so you can maintain both work and wellness seamlessly.
+---
 
-## How We Built It
+## Quick Start
+```bash
+# Clone
+$ git clone https://github.com/yourusername/purrfect-care.git
+$ cd purrfect-care
 
-- **Languages & Frameworks:** Python, PyQt5, and Pygame  
-- **AI Integration:** ChatGPT, Claude  
-- **Design:** Custom GIFs and images arranged using coordinate-based placement  
-- **Challenges:**  
-  - Adapting to various laptop screen sizes.
-  - Ensuring proper placement of animations and text across different devices.
+# Install
+$ pip install -r requirements.txt
 
-## Accomplishments & Lessons Learned
+# Run
+$ python main.py
+```
+First launch opens **Settings ▸ API Key**. Paste your OpenAI or Anthropic key and start working—Patches will handle the rest.
 
-- **Accomplishments:**  
-  - Successfully integrated notifications, chat, and a to-do list into a single cohesive application.
-  - Overcame screen size variability challenges with coordinate-based design adjustments.
-- **Lessons Learned:**  
-  - The importance of adaptive design in building user-friendly applications.
-  - Balancing fun and productivity while maintaining a professional look.
+---
 
-## Getting Started
+## How to Use
+1. **Work Normally** – Patches lounges at the bottom of the screen.
+2. **Take the Hint** – When a dialog slides in, follow the suggested micro‑break.
+3. **Chat or Plan** – Need motivation? Open the chat. Need structure? Open the To‑Do list.
+4. **Tweak It** – Right‑click the tray icon for theme, interval, and sound options.
 
-### Prerequisites
+---
 
-- **Python 3.6+**
-- **PyQt5:** For building the user interface.
-- **PyAutoGUI:** For screen size detection.
-- **Google Generative AI SDK:** For chat functionality (API key required).
-- **Additional Dependencies:** Install other required libraries via pip.
+## Contributing
+1. Fork ➡️ Branch (`feature/awesome‑idea`) ➡️ Commit ➡️ PR.
+2. Follow our **CONTRIBUTING.md** code‑style & commit‑message guide.
+3. Keep it positive—Patches is watching.
 
-### Installation
+---
 
-1. **Clone the Repository:**
+## References
+1. Harvard Business Review. *How to Take Better Breaks at Work, According to Research* (2023).
+2. **Cat Assets** – Pixel art by *ToffeeCraft*.
+3. **Font** – *dogica* by Dávid Dóra.
+4. **OpenAI ChatGPT** – Conversational engine.
+5. **Anthropic Claude** – Alternative LLM support.
 
-   ```bash
-   git clone https://github.com/yourusername/purrfect-care.git
-   cd purrfect-care
+
