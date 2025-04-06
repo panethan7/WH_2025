@@ -1,5 +1,6 @@
 import sys
 import time
+from pathlib import Path
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QMessageBox, QMenu
 from PyQt5.QtMultimedia import QSound
 from PyQt5.QtCore import Qt, QTimer, QPoint
@@ -12,7 +13,8 @@ class CatBreakReminder(QMainWindow):
         super().__init__()
 
         # Load the custom font (dogicapixel.ttf)
-        font_id = QFontDatabase.addApplicationFont("dogica/TTF/dogicapixelbold.ttf")
+        font_path = Path("dogica/TTF/dogicapixelbold.ttf").resolve()
+        font_id = QFontDatabase.addApplicationFont(str(font_path))
         font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
         font = QFont(font_family, 6)  # Set font size 
 
@@ -75,7 +77,7 @@ class CatBreakReminder(QMainWindow):
      
         # --- Initialize Reminder Timers ---
         self.start_time = time.time()
-        self.water_interval = 0.1 * 60      # 40 minutes
+        self.water_interval = 40 * 60      # 40 minutes
         self.eye_interval = 20 * 60        # 20 minutes
         self.stretch_interval = 2 * 60 * 60 # 2 hours
 
