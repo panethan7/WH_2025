@@ -9,7 +9,7 @@ from PyQt5.QtGui import QMovie, QPixmap, QFontDatabase, QFont, QIcon
 import pyautogui
 
 import google.generativeai as genai
-genai.configure(api_key='AIzaSyBq6fbPca5tTT3oL8aHUkMpKd7hn-kYIWM')
+genai.configure(api_key='')
 
 # ---------------------------
 # Chat Window
