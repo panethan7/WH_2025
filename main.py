@@ -651,14 +651,14 @@ class CatBreakReminder(QMainWindow):
             genai.configure(api_key="")
             QMessageBox.information(self, "API Key Deleted", "The API key has been removed.")
 
-    def increase_size(self):
-        # Increase current window size by 20%
-        rect = self.geometry()
-        new_width = int(rect.width() * 1.2)
-        new_height = int(rect.height() * 1.2)
-        screen_height = pyautogui.size().height
-        self.setGeometry(0, screen_height - new_height, new_width, new_height)
-        self.update_layout(new_width, new_height)
+    # def increase_size(self):
+    #     # Increase current window size by 20%
+    #     rect = self.geometry()
+    #     new_width = int(rect.width() * 1.2)
+    #     new_height = int(rect.height() * 1.2)
+    #     screen_height = pyautogui.size().height
+    #     self.setGeometry(0, screen_height - new_height, new_width, new_height)
+    #     self.update_layout(new_width, new_height)
 
     # def decrease_size(self):
     #     # Decrease current window size by 20%
