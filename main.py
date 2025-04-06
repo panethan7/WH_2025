@@ -323,6 +323,19 @@ class NotificationDialog(QDialog):
         self.close_btn.move(self.container_frame.width() - 30, 10)
         super().resizeEvent(event)
 
+    def showEvent(self, event):
+        # Get the available screen geometry (using the primary screen)
+        screen_rect = QApplication.desktop().availableGeometry(self)
+        # Alternatively, for Qt5.14+:
+        # screen_rect = QApplication.primaryScreen().availableGeometry()
+        # Calculate the center point of the available screen
+        center_point = screen_rect.center()
+        # Get the geometry of the dialog and move its center to the screen center
+        frame_geo = self.frameGeometry()
+        frame_geo.moveCenter(center_point)
+        self.move(frame_geo.topLeft())
+        super().showEvent(event)
+
 # ---------------------------
 # To‑Do List Item Widget
 # ---------------------------
