@@ -2,7 +2,7 @@
 
 **The cutest cat you've ever seen is here to peer pressure you into taking care of yourself while you work!**
 
-Purrfect Care is a desktop wellness application designed to promote healthy work habits by reminding you to take breaks. Inspired by the Wellness track at our hackathon, our playful cat—Patches—motivates you to step away from your screen, drink water, stretch, and simply look up from your work.
+Purrfect Care is a desktop wellness application designed to promote healthy work habits by reminding you to take breaks. Inspired by the Wellness track at our hackathon, our playful cat—Patches—motivates you to step away from your screen, drink water, and stretch.
 
 ## Overview
 

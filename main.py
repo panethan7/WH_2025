@@ -769,17 +769,17 @@ class CatBreakReminder(QMainWindow):
 
     def open_todo_list(self):
     # Check if the to‑do window already exists and is not None
-    if hasattr(self, 'todo_window') and self.todo_window is not None:
-        # If it's minimized, restore it; then raise and activate it
-        self.todo_window.showNormal()
-        self.todo_window.raise_()
-        self.todo_window.activateWindow()
-    else:
-        # Otherwise, create a new one
-        self.todo_window = ToDoListWidget()
-        self.todo_window.show()
-        # When the window is closed/destroyed, set self.todo_window to None
-        self.todo_window.destroyed.connect(lambda: setattr(self, 'todo_window', None))
+        if hasattr(self, 'todo_window') and self.todo_window is not None:
+            # If it's minimized, restore it; then raise and activate it
+            self.todo_window.showNormal()
+            self.todo_window.raise_()
+            self.todo_window.activateWindow()
+        else:
+            # Otherwise, create a new one
+            self.todo_window = ToDoListWidget()
+            self.todo_window.show()
+            # When the window is closed/destroyed, set self.todo_window to None
+            self.todo_window.destroyed.connect(lambda: setattr(self, 'todo_window', None))
 
     def open_chat(self):
         settings = QSettings("MyCompany", "CatBreakReminder")
