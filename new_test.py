@@ -39,6 +39,7 @@ class CatBreakReminder(QMainWindow):
 
         # ===== MODIFIABLE RATIOS: Cat position within window =====
         self.cat_x_ratio = 0.36  # Cat x-position as percentage of window width
+        #self.cat_x_ratio = 0.50  # Cat x-position as percentage of window width
 
         #this
         self.cat_y_ratio = 0.50  # Cat y-position as percentage of window height
@@ -59,7 +60,7 @@ class CatBreakReminder(QMainWindow):
 
         # ===== NEW: House size relative to window =====
         self.house_width_ratio = 0.5  # House width as percentage of window width
-        self.house_height_ratio = 0.1  # House height as percentage of window height
+        self.house_height_ratio = 0.5  # House height as percentage of window height
         # ==============================================
 
         # Calculate actual cat position based on window size and ratios
@@ -145,9 +146,9 @@ class CatBreakReminder(QMainWindow):
         self.timer_label.setStyleSheet("color: #3b3227; background-color: #f0e5d2;")  # Pastel Pink
      
         # ===== MODIFIABLE INTERVALS: Reminder timers =====
-        self.water_interval = 40 * 60      # 40 minutes
-        self.eye_interval = 20 * 60        # 20 minutes (currently set to 0.1 for testing)
-        self.stretch_interval = 2 * 60 * 60 # 2 hours
+        self.water_interval = 0.2 * 60      # 40 minutes
+        self.eye_interval = 0.1 * 60        # 20 minutes (currently set to 0.1 for testing)
+        self.stretch_interval = 0.3 * 60  # 2 hours
         # =============================================
 
         # --- Initialize Reminder Timers ---
