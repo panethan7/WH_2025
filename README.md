@@ -1,4 +1,4 @@
-# Purrfect Care – Your Wellness Companion
+# Purrfect Care🐱💻 – Your Wellness Companion
 
 **The cutest cat you've ever seen is here to peer pressure you into taking care of yourself while you work!**
 
