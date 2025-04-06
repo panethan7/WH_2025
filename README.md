@@ -15,8 +15,6 @@ In today’s demanding work environment, maintaining physical and mental health 
 - **Interactive Notifications:** Custom, draggable dialogs appear centered on your screen so you never miss your break.
 - **Chat with Patches:** Enjoy uplifting conversations with your AI-powered cat friend to boost your mood and well-being.
 - **Built-In To-Do List:** Organize your tasks alongside your wellness breaks within one integrated interface.
-- **Adaptive Design:** Our coordinate-based design works across various screen sizes, ensuring a consistent user experience.
-- **Portable & Lightweight:** Ideal for hackathons and busy workdays, helping you integrate wellness effortlessly into your routine.
 
 ## Inspiration & What It Does
 
