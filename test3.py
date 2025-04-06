@@ -22,65 +22,14 @@ class CatBreakReminder(QMainWindow):
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         # Get screen size (using pyautogui for consistency)
-        self.screen_width, self.screen_height = pyautogui.size()
-        
-        # ===== MODIFIABLE RATIOS: Window size relative to screen =====
-        self.window_width_ratio = 0.22  # Window width as percentage of screen width
-        self.window_height_ratio = 0.42  # Window height as percentage of screen height
-        # =============================================================
-        
-        # Calculate actual window dimensions based on screen size and ratios
-        self.base_window_width = int(self.screen_width * self.window_width_ratio)
-        self.base_window_height = int(self.screen_height * self.window_height_ratio)
+        screen_width, screen_height = pyautogui.size()
+        self.base_window_width, self.base_window_height = 404, 445
         self.window_width, self.window_height = self.base_window_width, self.base_window_height
-        
-        # Position window at bottom of screen
-        self.setGeometry(0, self.screen_height - self.window_height, self.window_width, self.window_height)
+        self.setGeometry(0, screen_height - self.window_height, self.window_width, self.window_height)
 
-        # ===== MODIFIABLE RATIOS: Cat position within window =====
-        self.cat_x_ratio = 0.36  # Cat x-position as percentage of window width
-
-        #this
-        self.cat_y_ratio = 0.50  # Cat y-position as percentage of window height
-        # ======================================================
-        
-        # ===== MODIFIABLE RATIOS: House position =====
-        self.house_x_ratio = 0.5  # House x-position as percentage of window width
-        self.house_y_ratio = 0.5  # House y-position as percentage of window height
-        #self.house_x_ratio = 0.22  # House x-position as percentage of window width
-        #self.house_y_ratio = 0.42  # House y-position as percentage of window height
-
-        # ==============================================
-
-        # ===== NEW: Cat size relative to window =====
-        self.cat_width_ratio = 0.30  # Cat width as percentage of window width
-        self.cat_height_ratio = 0.30  # Cat height as percentage of window height
-        # ============================================
-
-        # ===== NEW: House size relative to window =====
-        self.house_width_ratio = 0.5  # House width as percentage of window width
-        self.house_height_ratio = 0.1  # House height as percentage of window height
-        # ==============================================
-
-        # Calculate actual cat position based on window size and ratios
-        self.base_cat_x = int(self.base_window_width * self.cat_x_ratio)
-        self.base_cat_y = int(self.base_window_height * self.cat_y_ratio)
+        # Store original cat position and size for scaling
+        self.base_cat_x, self.base_cat_y = 137, 53
         self.cat_x, self.cat_y = self.base_cat_x, self.base_cat_y
-
-        # Calculate base cat size
-        self.base_cat_width = int(self.base_window_width * self.cat_width_ratio)
-        self.base_cat_height = int(self.base_window_height * self.cat_height_ratio)
-        self.cat_width, self.cat_height = self.base_cat_width, self.base_cat_height
-
-        # Calculate house position based on window size and ratios
-        self.base_house_x = int(self.base_window_width * self.house_x_ratio)
-        self.base_house_y = int(self.base_window_height * self.house_y_ratio)
-        self.house_x, self.house_y = self.base_house_x, self.base_house_y
-
-        # Calculate base house size
-        self.base_house_width = int(self.base_window_width * self.house_width_ratio)
-        self.base_house_height = int(self.base_window_height * self.house_height_ratio)
-        self.house_width, self.house_height = self.base_house_width, self.base_house_height
 
         # --- Load Images and Animations ---
         # Background image
@@ -104,30 +53,16 @@ class CatBreakReminder(QMainWindow):
 
         # Cat label: displays the animated cat
         self.cat_label = QLabel(self)
-        self.cat_label.setGeometry(self.cat_x, self.cat_y, self.cat_width, self.cat_height)
+        self.cat_label.setGeometry(self.cat_x, self.cat_y, self.window_width, self.window_height)
         self.cat_label.setStyleSheet("background-color: transparent;")
-        self.cat_label.setScaledContents(True)  # Enable scaling for cat animations
         # Start with the idle animation
         self.current_movie = self.movie_idle
         self.cat_label.setMovie(self.current_movie)
         self.current_movie.start()
 
-        # House label: displays the house
-        self.house_label = QLabel(self)
-        self.house_label.setGeometry(self.house_x, self.house_y, self.house_width, self.house_height)
-        self.house_label.setStyleSheet("background-color: transparent;")
-        self.house_label.setPixmap(QPixmap('sprites/house.png'))  # Assume there's a house image
-        self.house_label.setScaledContents(True)
-
-        # ===== MODIFIABLE RATIOS: Status label positions =====
-        self.status_height_ratio = 0.05  # Status height as percentage of window height
-        self.timer_offset_ratio = 0.05   # Timer position offset from status as percentage of window height
-        # ==================================================
-
         # Status label (at the bottom)
-        status_height = int(self.window_height * self.status_height_ratio)
         self.status_label = QLabel(self)
-        self.status_label.setGeometry(0, self.window_height - status_height, self.window_width, status_height)
+        self.status_label.setGeometry(0, self.window_height - 40, self.window_width, 20)
         self.status_label.setStyleSheet("background-color: white; color: black;")
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.setText("Cat is watching you work...")
@@ -135,23 +70,20 @@ class CatBreakReminder(QMainWindow):
         self.status_label.setStyleSheet("color: #3b3227; background-color: #f0e5d2;")  # change font and background colors
        
         # Timer label (above status)
-        timer_offset = int(self.window_height * self.timer_offset_ratio)
         self.timer_label = QLabel(self)
-        self.timer_label.setGeometry(0, self.window_height - status_height - timer_offset, self.window_width, status_height)
+        self.timer_label.setGeometry(0, self.window_height - 60, self.window_width, 20)
         self.timer_label.setStyleSheet("background-color: white; color: black;")
         self.timer_label.setAlignment(Qt.AlignCenter)
         self.timer_label.setText("Water: --m | Eyes: --m | Stretch: --m")
         self.timer_label.setFont(font)  # Apply custom font
         self.timer_label.setStyleSheet("color: #3b3227; background-color: #f0e5d2;")  # Pastel Pink
      
-        # ===== MODIFIABLE INTERVALS: Reminder timers =====
-        self.water_interval = 40 * 60      # 40 minutes
-        self.eye_interval = 20 * 60        # 20 minutes (currently set to 0.1 for testing)
-        self.stretch_interval = 2 * 60 * 60 # 2 hours
-        # =============================================
-
         # --- Initialize Reminder Timers ---
         self.start_time = time.time()
+        self.water_interval = 40 * 60      # 40 minutes
+        self.eye_interval = 0.1 * 60        # 20 minutes
+        self.stretch_interval = 2 * 60 * 60 # 2 hours
+
         self.last_water_time = self.start_time
         self.last_eye_time = self.start_time
         self.last_stretch_time = self.start_time
@@ -284,7 +216,7 @@ class CatBreakReminder(QMainWindow):
     def cat_die(self):
         self.cat_dead = True
         self.status_label.setText("The cat has died. RIP.")
-        self.cat_label.setPixmap(self.dead_pixmap.scaled(self.cat_width, self.cat_height, Qt.KeepAspectRatio))
+        self.cat_label.setPixmap(self.dead_pixmap)
         # Optionally stop the timer from checking further reminders
         self.check_timer.stop()
 
@@ -336,45 +268,28 @@ class CatBreakReminder(QMainWindow):
         new_width = int(self.base_window_width * self.zoom_level)
         new_height = int(self.base_window_height * self.zoom_level)
         
-        # Update window size and position
-        self.window_width, self.window_height = new_width, new_height
-        self.setGeometry(0, self.screen_height - new_height, new_width, new_height)
+        # Calculate new cat position (scaling from original position)
+        self.cat_x = int(self.base_cat_x * self.zoom_level)
+        self.cat_y = int(self.base_cat_y * self.zoom_level)
         
-        # Update layout components (including cat and house sizes)
+        # Update window size
+        screen_height = pyautogui.size()[1]
+        self.window_width, self.window_height = new_width, new_height
+        self.setGeometry(0, screen_height - new_height, new_width, new_height)
+        
+        # Update layout components
         self.update_layout()
         
     def update_layout(self):
         # Update geometry of child widgets based on new window size
         self.background_label.setGeometry(0, 0, self.window_width, self.window_height)
         
-        # Calculate new cat dimensions and position based on zoom level
-        self.cat_x = int(self.window_width * self.cat_x_ratio)
-        self.cat_y = int(self.window_height * self.cat_y_ratio)
-        self.cat_width = int(self.window_width * self.cat_width_ratio)
-        self.cat_height = int(self.window_height * self.cat_height_ratio)
+        # Update cat label position while keeping the same scale relative to the window
+        self.cat_label.setGeometry(self.cat_x, self.cat_y, self.window_width, self.window_height)
         
-        # Update cat label position and size
-        self.cat_label.setGeometry(self.cat_x, self.cat_y, self.cat_width, self.cat_height)
-        
-        # Calculate new house dimensions and position based on zoom level
-        self.house_x = int(self.window_width * self.house_x_ratio)
-        self.house_y = int(self.window_height * self.house_y_ratio)
-        self.house_width = int(self.window_width * self.house_width_ratio)
-        self.house_height = int(self.window_height * self.house_height_ratio)
-        
-        # Update house label position and size
-        self.house_label.setGeometry(self.house_x, self.house_y, self.house_width, self.house_height)
-        
-        # If cat is dead, rescale the dead cat pixmap
-        if self.cat_dead:
-            self.cat_label.setPixmap(self.dead_pixmap.scaled(self.cat_width, self.cat_height, Qt.KeepAspectRatio))
-        
-        # Update bottom status labels using ratios
-        status_height = int(self.window_height * self.status_height_ratio)
-        timer_offset = int(self.window_height * self.timer_offset_ratio)
-        
-        self.timer_label.setGeometry(0, self.window_height - status_height - timer_offset, self.window_width, status_height)
-        self.status_label.setGeometry(0, self.window_height - status_height, self.window_width, status_height)
+        # Update bottom status labels
+        self.timer_label.setGeometry(0, self.window_height - 60, self.window_width, 20)
+        self.status_label.setGeometry(0, self.window_height - 40, self.window_width, 20)
         
         # Update font size based on zoom
         current_font = self.status_label.font()
