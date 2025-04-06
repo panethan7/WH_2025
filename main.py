@@ -1,12 +1,185 @@
 import sys
 import time
 from pathlib import Path
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QMessageBox, QMenu,
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QMessageBox, QMenu, QFrame, QDialog, QTextEdit, QDialog, QInputDialog,
                              QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QCheckBox, QPushButton, QScrollArea, QDesktopWidget)
 from PyQt5.QtMultimedia import QSound, QMediaPlayer, QMediaPlaylist, QMediaContent
-from PyQt5.QtCore import Qt, QTimer, QPoint, QUrl
+from PyQt5.QtCore import Qt, QTimer, QPoint, QUrl, pyqtSignal, QEvent, QSettings
 from PyQt5.QtGui import QMovie, QPixmap, QFontDatabase, QFont, QIcon
 import pyautogui
+
+import google.generativeai as genai
+genai.configure(api_key='')
+
+# ---------------------------
+# Chat Window
+# ---------------------------
+class ChatDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        # --- Frameless window & transparent background ---
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+
+        # Store drag offset for moving the window
+        self.drag_offset = QPoint()
+
+        # --- Outer Container: Use QFrame to create a cute background box ---
+        self.container_frame = QFrame(self)
+        self.container_frame.setStyleSheet("""
+            QFrame {
+                background-color: #f0e5d2;        /* Light background matching the main window */
+                border: 2px solid #3b3227;         /* Border color */
+                border-radius: 10px;               /* Rounded corners */
+            }
+        """)
+        self.container_frame.setObjectName("container_frame")
+
+        # Ensure QFrame fills the entire dialog window
+        # In resizeEvent, force container_frame to fill the entire QDialog
+        self.container_layout = QVBoxLayout(self.container_frame)
+        self.container_layout.setContentsMargins(10, 10, 10, 10)
+        self.container_layout.setSpacing(5)
+
+        # --- Top Area (contains the custom Close button) ---
+        self.top_bar = QHBoxLayout()
+        self.top_bar.setContentsMargins(0, 0, 0, 0)
+        self.top_bar.setSpacing(0)
+
+        # Custom close button
+        self.close_button = QPushButton("×")
+        self.close_button.setFixedSize(20, 20)
+        self.close_button.setStyleSheet("""
+            QPushButton {
+                font-weight: bold;
+                color: #3b3227;
+                background-color: #d9c7ab;
+                border: none;
+                border-radius: 10px;
+            }
+            QPushButton:hover {
+                background-color: #ccb59f;
+            }
+        """)
+        self.close_button.clicked.connect(self.close)
+
+        # Place the close button on the right side
+        self.top_bar.addStretch(1)
+        self.top_bar.addWidget(self.close_button)
+
+        self.container_layout.addLayout(self.top_bar)
+
+        # --- Chat Content Area (QTextEdit) ---
+        self.conversation = QTextEdit()
+        self.conversation.setReadOnly(True)
+        self.conversation.setStyleSheet("""
+            QTextEdit {
+                background-color: #ffffff;
+                color: #3b3227;
+                border: 1px solid #3b3227;
+                border-radius: 5px;
+            }
+        """)
+        self.container_layout.addWidget(self.conversation)
+
+        # --- Bottom Input Area ---
+        self.input_layout = QHBoxLayout()
+        self.input_layout.setContentsMargins(0, 0, 0, 0)
+        self.input_layout.setSpacing(5)
+
+        self.input_field = QLineEdit()
+        self.input_field.setStyleSheet("""
+            QLineEdit {
+                background-color: #ffffff;
+                color: #3b3227;
+                border: 1px solid #3b3227;
+                border-radius: 5px;
+                padding: 3px;
+            }
+        """)
+
+        self.input_field.installEventFilter(self)
+
+        self.send_button = QPushButton("Send")
+        self.send_button.setStyleSheet("""
+            QPushButton {
+                background-color: #d9c7ab;
+                color: #3b3227;
+                border: none;
+                border-radius: 5px;
+                padding: 5px 10px;
+            }
+            QPushButton:hover {
+                background-color: #ccb59f;
+            }
+        """)
+
+        self.input_layout.addWidget(self.input_field)
+        self.input_layout.addWidget(self.send_button)
+        self.container_layout.addLayout(self.input_layout)
+
+        # Add the outer container to the QDialog's main layout
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(self.container_frame)
+
+        # --- Connect Signals and Slots ---
+        self.send_button.clicked.connect(self.send_message)
+        self.input_field.returnPressed.connect(self.send_message)
+
+        # --- Generative AI model part (same as the original logic) ---
+        self.model = genai.GenerativeModel('gemini-2.0-flash')
+        self.chat_history = [
+            {
+                'role': 'user',
+                'parts': [
+                    "You are a playful, curious, inquisitive, alert, inventive cat named Patches. You possess a nurturing wisdom and all the humour. Your role is to provide supportive to help uplift the user's mood and make them feel well. Make answers very short and clean."
+                ]
+            }
+        ]
+
+        self.setMinimumSize(400, 300)
+    
+    def eventFilter(self, source, event):
+        if source == self.input_field and event.type() == QEvent.KeyPress:
+            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+                self.send_message() 
+                return True
+        return super().eventFilter(source, event)
+
+    def resizeEvent(self, event):
+        """Ensure the container_frame always fills the dialog window."""
+        super().resizeEvent(event)
+        self.container_frame.resize(self.width(), self.height())
+
+    def mousePressEvent(self, event):
+        """Allow dragging of the frameless window."""
+        if event.button() == Qt.LeftButton:
+            self.drag_offset = event.globalPos() - self.frameGeometry().topLeft()
+            event.accept()
+
+    def mouseMoveEvent(self, event):
+        """Handle dragging of the frameless window."""
+        if event.buttons() == Qt.LeftButton:
+            self.move(event.globalPos() - self.drag_offset)
+            event.accept()
+
+    def send_message(self):
+        user_text = self.input_field.text().strip()
+        if not user_text:
+            return
+        self.conversation.append(f"<b>You:</b> {user_text}")
+        self.input_field.clear()
+        self.chat_history.append({'role': 'user', 'parts': [user_text]})
+        try:
+            response = self.model.generate_content(self.chat_history)
+            cat_response = response.text.strip()
+        except Exception as e:
+            cat_response = "Error: " + str(e)
+        self.chat_history.append({'role': 'model', 'parts': [cat_response]})
+        self.conversation.append(f"<b>Cat:</b> {cat_response}")
+
 # ---------------------------
 # To‑Do List Item Widget
 # ---------------------------
@@ -229,7 +402,12 @@ class CatBreakReminder(QMainWindow):
         self.timer_label.setText("Water: --m | Eyes: --m | Stretch: --m")
         self.timer_label.setFont(font)  # Apply custom font
         self.timer_label.setStyleSheet("color: #3b3227; background-color: #f0e5d2;")  # Pastel Pink, also wtf is this parameter
-     
+
+        # API Key
+        settings = QSettings("MyCompany", "CatBreakReminder")
+        stored_key = settings.value("api_key", "")
+        if stored_key:
+            genai.configure(api_key=stored_key)
      
         # --- Initialize Reminder Timers ---
         self.start_time = time.time()
@@ -382,20 +560,59 @@ class CatBreakReminder(QMainWindow):
       # --- Context Menu with additional options ---
     def contextMenuEvent(self, event):
         menu = QMenu(self)
+        chat_action = menu.addAction("Chat with Cat")
         to_do = menu.addAction("To-Do List")
+        api_settings_menu = menu.addMenu("API Settings")
+        set_api_action = api_settings_menu.addAction("Set API Key")
+        delete_api_action = api_settings_menu.addAction("Delete API Key")
         minimize_action = menu.addAction("Minimize")
         quit_action = menu.addAction("Quit")
         action = menu.exec_(self.mapToGlobal(event.pos()))
         if action == quit_action:
-            self.close()
+            QApplication.instance().quit()
         elif action == to_do:
             self.open_todo_list()
         elif action == minimize_action:
             self.showMinimized()
+        elif action == chat_action:
+            self.open_chat()
+        elif action == set_api_action:
+            self.open_api_key_dialog()
+        elif action == delete_api_action:
+            self.delete_api_key()
 
     def open_todo_list(self):
         self.todo_window = ToDoListWidget()
         self.todo_window.show()
+
+    def open_chat(self):
+        settings = QSettings("MyCompany", "CatBreakReminder")
+        stored_key = settings.value("api_key", "")
+        if not stored_key or stored_key.strip() == "":
+            QMessageBox.warning(self, "API Key Required",
+                                "You must set an API key before using Chat with Cat.")
+            return
+        chat_dialog = ChatDialog()
+        chat_dialog.setWindowModality(Qt.ApplicationModal)
+        chat_dialog.exec_()
+    
+    def open_api_key_dialog(self):
+        new_key, ok = QInputDialog.getText(self, "Set API Key", "Enter your API key:")
+        if ok and new_key:
+            settings = QSettings("MyCompany", "CatBreakReminder")
+            settings.setValue("api_key", new_key)
+            genai.configure(api_key=new_key)
+            QMessageBox.information(self, "API Key Set", "The API key has been updated.")
+
+    def delete_api_key(self):
+        reply = QMessageBox.question(self, "Delete API Key",
+                                    "Are you sure you want to delete the stored API key?",
+                                    QMessageBox.Yes | QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            settings = QSettings("MyCompany", "CatBreakReminder")
+            settings.remove("api_key")
+            genai.configure(api_key="")
+            QMessageBox.information(self, "API Key Deleted", "The API key has been removed.")
 
     # def increase_size(self):
     #     # Increase current window size by 20%
