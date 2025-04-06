@@ -387,7 +387,7 @@ class CatBreakReminder(QMainWindow):
         quit_action = menu.addAction("Quit")
         action = menu.exec_(self.mapToGlobal(event.pos()))
         if action == quit_action:
-            self.close()
+            QApplication.instance().quit()
         elif action == to_do:
             self.open_todo_list()
         elif action == minimize_action:
