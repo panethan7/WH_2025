@@ -1,10 +1,10 @@
 import sys
 import time
 from pathlib import Path
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QMessageBox, QMenu, QFrame, QDialog, QTextEdit, QDialog,
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QMessageBox, QMenu, QFrame, QDialog, QTextEdit, QDialog, QInputDialog,
                              QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QCheckBox, QPushButton, QScrollArea, QDesktopWidget)
 from PyQt5.QtMultimedia import QSound, QMediaPlayer, QMediaPlaylist, QMediaContent
-from PyQt5.QtCore import Qt, QTimer, QPoint, QUrl, pyqtSignal, QEvent
+from PyQt5.QtCore import Qt, QTimer, QPoint, QUrl, pyqtSignal, QEvent, QSettings
 from PyQt5.QtGui import QMovie, QPixmap, QFontDatabase, QFont, QIcon
 import pyautogui
 
@@ -402,7 +402,12 @@ class CatBreakReminder(QMainWindow):
         self.timer_label.setText("Water: --m | Eyes: --m | Stretch: --m")
         self.timer_label.setFont(font)  # Apply custom font
         self.timer_label.setStyleSheet("color: #3b3227; background-color: #f0e5d2;")  # Pastel Pink, also wtf is this parameter
-     
+
+        # API Key
+        settings = QSettings("MyCompany", "CatBreakReminder")
+        stored_key = settings.value("api_key", "")
+        if stored_key:
+            genai.configure(api_key=stored_key)
      
         # --- Initialize Reminder Timers ---
         self.start_time = time.time()
@@ -557,6 +562,9 @@ class CatBreakReminder(QMainWindow):
         menu = QMenu(self)
         chat_action = menu.addAction("Chat with Cat")
         to_do = menu.addAction("To-Do List")
+        api_settings_menu = menu.addMenu("API Settings")
+        set_api_action = api_settings_menu.addAction("Set API Key")
+        delete_api_action = api_settings_menu.addAction("Delete API Key")
         minimize_action = menu.addAction("Minimize")
         quit_action = menu.addAction("Quit")
         action = menu.exec_(self.mapToGlobal(event.pos()))
@@ -568,15 +576,43 @@ class CatBreakReminder(QMainWindow):
             self.showMinimized()
         elif action == chat_action:
             self.open_chat()
+        elif action == set_api_action:
+            self.open_api_key_dialog()
+        elif action == delete_api_action:
+            self.delete_api_key()
 
     def open_todo_list(self):
         self.todo_window = ToDoListWidget()
         self.todo_window.show()
 
     def open_chat(self):
+        settings = QSettings("MyCompany", "CatBreakReminder")
+        stored_key = settings.value("api_key", "")
+        if not stored_key or stored_key.strip() == "":
+            QMessageBox.warning(self, "API Key Required",
+                                "You must set an API key before using Chat with Cat.")
+            return
         chat_dialog = ChatDialog()
         chat_dialog.setWindowModality(Qt.ApplicationModal)
         chat_dialog.exec_()
+    
+    def open_api_key_dialog(self):
+        new_key, ok = QInputDialog.getText(self, "Set API Key", "Enter your API key:")
+        if ok and new_key:
+            settings = QSettings("MyCompany", "CatBreakReminder")
+            settings.setValue("api_key", new_key)
+            genai.configure(api_key=new_key)
+            QMessageBox.information(self, "API Key Set", "The API key has been updated.")
+
+    def delete_api_key(self):
+        reply = QMessageBox.question(self, "Delete API Key",
+                                    "Are you sure you want to delete the stored API key?",
+                                    QMessageBox.Yes | QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            settings = QSettings("MyCompany", "CatBreakReminder")
+            settings.remove("api_key")
+            genai.configure(api_key="")
+            QMessageBox.information(self, "API Key Deleted", "The API key has been removed.")
 
     # def increase_size(self):
     #     # Increase current window size by 20%
