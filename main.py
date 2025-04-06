@@ -442,7 +442,7 @@ class CatBreakReminder(QMainWindow):
         self.timer_label.setStyleSheet("color: #3b3227; background-color: #f0e5d2;")  # Pastel Pink, also wtf is this parameter
 
         # API Key
-        settings = QSettings("MyCompany", "CatBreakReminder")
+        settings = QSettings("MyCompany", "CatBreakReminder") # This where .env API key goes????
         stored_key = settings.value("api_key", "")
         if stored_key:
             genai.configure(api_key=stored_key)
@@ -583,7 +583,6 @@ class CatBreakReminder(QMainWindow):
         self.cat_dead = True
         self.status_label.setText("The cat has died. RIP.")
         self.cat_label.setPixmap(self.dead_pixmap)
-        # Optionally stop the timer from checking further reminders
         self.check_timer.stop()
 
     # --- Enable Window Dragging ---
