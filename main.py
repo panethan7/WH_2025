@@ -599,9 +599,9 @@ class CatBreakReminder(QMainWindow):
         menu = QMenu(self)
         chat_action = menu.addAction("Chat with Cat")
         to_do = menu.addAction("To-Do List")
-        # api_settings_menu = menu.addMenu("API Settings")
-        # set_api_action = api_settings_menu.addAction("Set API Key")
-        # delete_api_action = api_settings_menu.addAction("Delete API Key")
+        api_settings_menu = menu.addMenu("Settings")
+        set_api_action = api_settings_menu.addAction("Set API Key")
+        delete_api_action = api_settings_menu.addAction("Delete API Key")
         minimize_action = menu.addAction("Minimize")
         quit_action = menu.addAction("Quit")
         action = menu.exec_(self.mapToGlobal(event.pos()))
@@ -613,10 +613,10 @@ class CatBreakReminder(QMainWindow):
             self.showMinimized()
         elif action == chat_action:
             self.open_chat()
-        # elif action == set_api_action:
-        #     self.open_api_key_dialog()
-        # elif action == delete_api_action:
-        #     self.delete_api_key()
+        elif action == set_api_action:
+            self.open_api_key_dialog()
+        elif action == delete_api_action:
+            self.delete_api_key()
 
     def open_todo_list(self):
         self.todo_window = ToDoListWidget()
@@ -633,32 +633,32 @@ class CatBreakReminder(QMainWindow):
         chat_dialog.setWindowModality(Qt.ApplicationModal)
         chat_dialog.exec_()
     
-    # def open_api_key_dialog(self):
-    #     new_key, ok = QInputDialog.getText(self, "Set API Key", "Enter your API key:")
-    #     if ok and new_key:
-    #         settings = QSettings("MyCompany", "CatBreakReminder")
-    #         settings.setValue("api_key", new_key)
-    #         genai.configure(api_key=new_key)
-    #         QMessageBox.information(self, "API Key Set", "The API key has been updated.")
+    def open_api_key_dialog(self):
+        new_key, ok = QInputDialog.getText(self, "Set API Key", "Enter your API key:")
+        if ok and new_key:
+            settings = QSettings("MyCompany", "CatBreakReminder")
+            settings.setValue("api_key", new_key)
+            genai.configure(api_key=new_key)
+            QMessageBox.information(self, "API Key Set", "The API key has been updated.")
 
-    # def delete_api_key(self):
-    #     reply = QMessageBox.question(self, "Delete API Key",
-    #                                 "Are you sure you want to delete the stored API key?",
-    #                                 QMessageBox.Yes | QMessageBox.No)
-    #     if reply == QMessageBox.Yes:
-    #         settings = QSettings("MyCompany", "CatBreakReminder")
-    #         settings.remove("api_key")
-    #         genai.configure(api_key="")
-    #         QMessageBox.information(self, "API Key Deleted", "The API key has been removed.")
+    def delete_api_key(self):
+        reply = QMessageBox.question(self, "Delete API Key",
+                                    "Are you sure you want to delete the stored API key?",
+                                    QMessageBox.Yes | QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            settings = QSettings("MyCompany", "CatBreakReminder")
+            settings.remove("api_key")
+            genai.configure(api_key="")
+            QMessageBox.information(self, "API Key Deleted", "The API key has been removed.")
 
-    # def increase_size(self):
-    #     # Increase current window size by 20%
-    #     rect = self.geometry()
-    #     new_width = int(rect.width() * 1.2)
-    #     new_height = int(rect.height() * 1.2)
-    #     screen_height = pyautogui.size().height
-    #     self.setGeometry(0, screen_height - new_height, new_width, new_height)
-    #     self.update_layout(new_width, new_height)
+    def increase_size(self):
+        # Increase current window size by 20%
+        rect = self.geometry()
+        new_width = int(rect.width() * 1.2)
+        new_height = int(rect.height() * 1.2)
+        screen_height = pyautogui.size().height
+        self.setGeometry(0, screen_height - new_height, new_width, new_height)
+        self.update_layout(new_width, new_height)
 
     # def decrease_size(self):
     #     # Decrease current window size by 20%
