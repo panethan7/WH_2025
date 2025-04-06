@@ -150,6 +150,17 @@ class ToDoListWidget(QWidget):
         self.list_layout.addWidget(item)
         self.list_layout.addStretch()
 
+    def contextMenuEvent(self, event):
+        menu = QMenu(self)
+        minimize_action = menu.addAction("Minimize")
+        close_action = menu.addAction("Close")
+        action = menu.exec_(self.mapToGlobal(event.pos()))
+        if action == minimize_action:
+            self.showMinimized()
+        elif action == close_action:
+            self.close()
+
+
 # ---------------------------
 # Main App (Cat Break Reminder)
 # ---------------------------
@@ -372,7 +383,7 @@ class CatBreakReminder(QMainWindow):
     def contextMenuEvent(self, event):
         menu = QMenu(self)
         to_do = menu.addAction("To-Do List")
-        minimize_action = menu.addAction("Minimize List")
+        minimize_action = menu.addAction("Minimize")
         quit_action = menu.addAction("Quit")
         action = menu.exec_(self.mapToGlobal(event.pos()))
         if action == quit_action:
