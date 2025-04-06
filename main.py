@@ -22,15 +22,15 @@ class ToDoItemWidget(QWidget):
         layout.setSpacing(10)
         
         # Apply the background style via stylesheet (without width/height)
-        # self.setStyleSheet("""
-        #     QWidget {
-        #         background-color: #FFF4E2;
-        #         border: 1px solid #ccc;
-        #         border-radius: 10px;
-        #         width: 220px;
-        #         height: 30px;
-        #     }
-        # """)
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #FFF4E2;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+                width: 220px;
+                height: 30px;
+             }
+         """)
 
         # Create the checkbox with custom style
         self.checkbox = QCheckBox(self)
@@ -149,6 +149,17 @@ class ToDoListWidget(QWidget):
             self.list_layout.takeAt(count - 1)
         self.list_layout.addWidget(item)
         self.list_layout.addStretch()
+
+    def contextMenuEvent(self, event):
+        menu = QMenu(self)
+        minimize_action = menu.addAction("Minimize")
+        close_action = menu.addAction("Close")
+        action = menu.exec_(self.mapToGlobal(event.pos()))
+        if action == minimize_action:
+            self.showMinimized()
+        elif action == close_action:
+            self.close()
+
 
 # ---------------------------
 # Main App (Cat Break Reminder)
@@ -332,7 +343,7 @@ class CatBreakReminder(QMainWindow):
     def contextMenuEvent(self, event):
         menu = QMenu(self)
         to_do = menu.addAction("To-Do List")
-        minimize_action = menu.addAction("Minimize List")
+        minimize_action = menu.addAction("Minimize")
         quit_action = menu.addAction("Quit")
         action = menu.exec_(self.mapToGlobal(event.pos()))
         if action == quit_action:
@@ -343,8 +354,19 @@ class CatBreakReminder(QMainWindow):
             self.showMinimized()
 
     def open_todo_list(self):
-        self.todo_window = ToDoListWidget()
-        self.todo_window.show()
+    # Check if the to‑do window already exists and is not None
+        if hasattr(self, 'todo_window') and self.todo_window is not None:
+            # If it's minimized, restore it; then raise and activate it
+            self.todo_window.showNormal()
+            self.todo_window.raise_()
+            self.todo_window.activateWindow()
+        else:
+            # Otherwise, create a new one
+            self.todo_window = ToDoListWidget()
+            self.todo_window.show()
+            # When the window is closed/destroyed, set self.todo_window to None
+            self.todo_window.destroyed.connect(lambda: setattr(self, 'todo_window', None))
+
 
     # def increase_size(self):
     #     # Increase current window size by 20%
