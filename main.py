@@ -216,6 +216,127 @@ class ChatDialog(QDialog):
             self.decrease_font()
 
 # ---------------------------
+# Notification Window
+# ---------------------------
+class NotificationDialog(QDialog):
+    def __init__(self, msg_text, custom_font, parent=None):
+        super().__init__(parent)
+
+        # Set window flags, but do not set translucent background so it remains opaque
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
+        # Remove the following attribute to avoid a transparent background:
+        # self.setAttribute(Qt.WA_TranslucentBackground)
+
+        # Create a container QFrame with the same style as the ChatDialog
+        self.container_frame = QFrame(self)
+        self.container_frame.setStyleSheet("""
+            QFrame {
+                background-color: #f0e5d2;
+                border: 2px solid #3b3227;
+                border-radius: 10px;
+            }
+        """)
+
+        # Set up the main layout and add the container frame
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(self.container_frame)
+
+        # Internal layout to hold the label and buttons
+        layout = QVBoxLayout(self.container_frame)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(10)
+
+        # Label to display the message text
+        self.label = QLabel(msg_text, self)
+        self.label.setFont(custom_font)
+        self.label.setStyleSheet("color: #3b3227;")
+        layout.addWidget(self.label)
+
+        # Button layout for Yes and No buttons
+        btn_layout = QHBoxLayout()
+        self.yes_button = QPushButton("Yes", self)
+        self.no_button = QPushButton("No", self)
+        self.yes_button.setFont(custom_font)
+        self.no_button.setFont(custom_font)
+        btn_style = """
+            QPushButton {
+                background-color: #d9c7ab;
+                color: #3b3227;
+                border: none;
+                border-radius: 5px;
+                padding: 6px 14px;
+            }
+            QPushButton:hover {
+                background-color: #ccb59f;
+            }
+            QPushButton:pressed {
+                background-color: #5E81AC;
+            }
+        """
+        self.yes_button.setStyleSheet(btn_style)
+        self.no_button.setStyleSheet(btn_style)
+        btn_layout.addWidget(self.yes_button)
+        btn_layout.addWidget(self.no_button)
+        layout.addLayout(btn_layout)
+
+        self.yes_button.clicked.connect(lambda: self.done(QMessageBox.Yes))
+        self.no_button.clicked.connect(lambda: self.done(QMessageBox.No))
+        
+        # Custom close button
+        self.close_btn = QPushButton("×", self.container_frame)
+        self.close_btn.setFixedSize(20, 20)
+        self.close_btn.setFont(custom_font)
+        self.close_btn.setStyleSheet("""
+            QPushButton {
+                font-weight: bold;
+                color: #3b3227;
+                background-color: #d9c7ab;
+                border: none;
+                border-radius: 10px;
+            }
+            QPushButton:hover {
+                background-color: #ccb59f;
+            }
+        """)
+        self.close_btn.clicked.connect(self.reject)
+        # Place the close button in the upper right corner; adjust its position in resizeEvent
+        self.close_btn.move(self.container_frame.width() - 30, 10)
+        self.close_btn.raise_()
+
+        self.resize(300, 150)
+    
+    def mousePressEvent(self, event):
+        # When left button is pressed, store the offset for dragging
+        if event.button() == Qt.LeftButton:
+            self.drag_offset = event.globalPos() - self.frameGeometry().topLeft()
+            event.accept()
+
+    def mouseMoveEvent(self, event):
+        # Move the window based on the stored offset
+        if event.buttons() == Qt.LeftButton and hasattr(self, 'drag_offset'):
+            self.move(event.globalPos() - self.drag_offset)
+            event.accept()
+
+    def resizeEvent(self, event):
+        # Ensure the close button always stays at the upper right corner
+        self.close_btn.move(self.container_frame.width() - 30, 10)
+        super().resizeEvent(event)
+
+    def showEvent(self, event):
+        # Get the available screen geometry (using the primary screen)
+        screen_rect = QApplication.desktop().availableGeometry(self)
+        # Alternatively, for Qt5.14+:
+        # screen_rect = QApplication.primaryScreen().availableGeometry()
+        # Calculate the center point of the available screen
+        center_point = screen_rect.center()
+        # Get the geometry of the dialog and move its center to the screen center
+        frame_geo = self.frameGeometry()
+        frame_geo.moveCenter(center_point)
+        self.move(frame_geo.topLeft())
+        super().showEvent(event)
+
+# ---------------------------
 # To‑Do List Item Widget
 # ---------------------------
 class ToDoItemWidget(QWidget):
@@ -394,7 +515,7 @@ class CatBreakReminder(QMainWindow):
         font_path = Path("dogica/TTF/dogicapixelbold.ttf").resolve()
         font_id = QFontDatabase.addApplicationFont(str(font_path))
         font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
-        font = QFont(font_family, 6)  # Set font size 
+        self.custom_font = QFont(font_family, 6)  # Set font size 
 
         # Set window properties: frameless, always on top, translucent background
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
@@ -440,7 +561,7 @@ class CatBreakReminder(QMainWindow):
         self.status_label.setStyleSheet("background-color: white; color: black;")
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.setText("Cat is watching you work...")
-        self.status_label.setFont(font)  # Apply custom font
+        self.status_label.setFont(self.custom_font)  # Apply custom font
         self.status_label.setStyleSheet("color: #3b3227; background-color: #f0e5d2;")  # change font and background colors
        
         # Timer label (above status)
@@ -449,7 +570,7 @@ class CatBreakReminder(QMainWindow):
         self.timer_label.setStyleSheet("background-color: white; color: black;")
         self.timer_label.setAlignment(Qt.AlignCenter)
         self.timer_label.setText("Water: --m | Eyes: --m | Stretch: --m")
-        self.timer_label.setFont(font)  # Apply custom font
+        self.timer_label.setFont(self.custom_font)  # Apply custom font
         self.timer_label.setStyleSheet("color: #3b3227; background-color: #f0e5d2;")  # Pastel Pink, also wtf is this parameter
 
         # API Key
@@ -460,9 +581,9 @@ class CatBreakReminder(QMainWindow):
      
         # --- Initialize Reminder Timers ---
         self.start_time = time.time()
-        self.water_interval = 40 * 60      # 40 minutes
+        self.water_interval = 0.2 * 60      # 40 minutes
         self.eye_interval = 0.1 * 60        # 20 minutes
-        self.stretch_interval = 2 * 60 * 60 # 2 hours
+        self.stretch_interval = 0.3 * 60 # 2 hours
 
         self.last_water_time = self.start_time
         self.last_eye_time = self.start_time
@@ -519,64 +640,81 @@ class CatBreakReminder(QMainWindow):
                 self.last_stretch_time = current_time
 
     def show_notification(self, message, animation_type):
-        def create_dialog(msg_text):
-            msg_box = QMessageBox(self)
-            msg_box.setWindowTitle("Cat Reminder")
-            msg_box.setText(msg_text)
-            msg_box.setIcon(QMessageBox.Question)
-            msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-
-            # Apply font and style
-            msg_box.setFont(self.status_label.font())
-            msg_box.setStyleSheet("""
-                    QMessageBox {
-                        background-color: #fbd2b3;
-                    }
-                    QLabel {
-                        color: #000000;
-                        font-size: 12px;
-                    }
-                    QPushButton {
-                        background-color: #d78c77;
-                        color: #000000;
-                        padding: 6px 14px;
-                        border: none;
-                        border-radius: 5px;
-                    }
-                    QPushButton:hover {
-                        background-color: #eb9486;
-                    }
-                    QPushButton:pressed {
-                        background-color: #5E81AC;
-                    }
-                """)
-
-            # Force the layout to calculate before moving
-            msg_box.ensurePolished()
-            msg_box.adjustSize()
-            msg_box.repaint()  # Force geometry update
-
-            # Center on screen
-            screen_geometry = QApplication.primaryScreen().availableGeometry()
-            msg_box_geometry = msg_box.frameGeometry()
-            msg_box_geometry.moveCenter(screen_geometry.center())
-            msg_box.move(msg_box_geometry.topLeft())
-
-            return msg_box.exec_()
-
-        # First popup
-        reply = create_dialog(message + "\n\nDid you complete this task?")
+        dlg = NotificationDialog(message + "\n\nDid you complete this task?", self.custom_font, self)
+        reply = dlg.exec_()
         if reply == QMessageBox.Yes:
             self.change_animation(self.movie_idle, "Cat is watching you work...")
-            return reply
         else:
             self.change_animation(self.movie_cry, "Cat is crying because you didn't complete the task!")
-            second_reply = create_dialog("Are you sure you didn't complete the task?")
+            dlg2 = NotificationDialog("Are you sure you didn't complete the task?", self.custom_font, self)
+            second_reply = dlg2.exec_()
             if second_reply == QMessageBox.Yes:
                 self.cat_die()
             else:
                 QTimer.singleShot(50000, self.reset_to_idle)
-            return reply
+        return reply
+
+        # def create_dialog(msg_text):
+        #     msg_box = QMessageBox(self)
+        #     msg_box.setWindowTitle("Cat Reminder")
+        #     msg_box.setText(msg_text)
+        #     msg_box.setIcon(QMessageBox.Question)
+        #     msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+
+        #     # Apply font and style
+        #     msg_box.setFont(self.status_label.font())
+        #     msg_box.setFont(self.status_label.font())
+        #     msg_box.setStyleSheet("""
+        #         QMessageBox {
+        #             background-color: #f0e5d2;
+        #             border: 2px solid #3b3227;
+        #             border-radius: 10px;
+        #         }
+        #         QLabel {
+        #             color: #3b3227;
+        #             font-size: 12px;
+        #         }
+        #         QPushButton {
+        #             background-color: #d9c7ab;
+        #             color: #3b3227;
+        #             border: none;
+        #             border-radius: 5px;
+        #             padding: 6px 14px;
+        #         }
+        #         QPushButton:hover {
+        #             background-color: #ccb59f;
+        #         }
+        #         QPushButton:pressed {
+        #             background-color: #5E81AC;
+        #         }
+        #     """)
+
+        #     # Force the layout to calculate before moving
+        #     msg_box.ensurePolished()
+        #     msg_box.adjustSize()
+        #     msg_box.repaint()  # Force geometry update
+
+        #     # Center on screen
+        #     screen_geometry = QApplication.primaryScreen().availableGeometry()
+        #     msg_box_geometry = msg_box.frameGeometry()
+        #     msg_box_geometry.moveCenter(screen_geometry.center())
+        #     msg_box.move(msg_box_geometry.topLeft())
+
+        #     return msg_box.exec_()
+
+        # # First popup
+        # reply = create_dialog(message + "\n\nDid you complete this task?")
+        # if reply == QMessageBox.Yes:
+        #     self.change_animation(self.movie_idle, "Cat is watching you work...")
+        #     return reply
+        # else:
+        #     self.change_animation(self.movie_cry, "Cat is crying because you didn't complete the task!")
+        #     second_reply = create_dialog("Are you sure you didn't complete the task?")
+        #     if second_reply == QMessageBox.Yes:
+        #         self.cat_die()
+        #     else:
+        #         QTimer.singleShot(50000, self.reset_to_idle)
+        #     return reply
 
     def change_animation(self, movie, status_message):
         # Stop current movie and change to the new one

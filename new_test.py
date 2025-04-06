@@ -146,9 +146,9 @@ class CatBreakReminder(QMainWindow):
         self.timer_label.setStyleSheet("color: #3b3227; background-color: #f0e5d2;")  # Pastel Pink
      
         # ===== MODIFIABLE INTERVALS: Reminder timers =====
-        self.water_interval = 40 * 60      # 40 minutes
-        self.eye_interval = 20 * 60        # 20 minutes (currently set to 0.1 for testing)
-        self.stretch_interval = 2 * 60 * 60 # 2 hours
+        self.water_interval = 0.2 * 60      # 40 minutes
+        self.eye_interval = 0.1 * 60        # 20 minutes (currently set to 0.1 for testing)
+        self.stretch_interval = 0.3 * 60  # 2 hours
         # =============================================
 
         # --- Initialize Reminder Timers ---
