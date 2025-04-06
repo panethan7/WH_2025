@@ -39,6 +39,7 @@ class CatBreakReminder(QMainWindow):
 
         # ===== MODIFIABLE RATIOS: Cat position within window =====
         self.cat_x_ratio = 0.36  # Cat x-position as percentage of window width
+        #self.cat_x_ratio = 0.50  # Cat x-position as percentage of window width
 
         #this
         self.cat_y_ratio = 0.50  # Cat y-position as percentage of window height
@@ -59,7 +60,7 @@ class CatBreakReminder(QMainWindow):
 
         # ===== NEW: House size relative to window =====
         self.house_width_ratio = 0.5  # House width as percentage of window width
-        self.house_height_ratio = 0.1  # House height as percentage of window height
+        self.house_height_ratio = 0.5  # House height as percentage of window height
         # ==============================================
 
         # Calculate actual cat position based on window size and ratios
