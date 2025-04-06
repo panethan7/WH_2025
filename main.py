@@ -2,7 +2,7 @@ import sys
 import time
 from pathlib import Path
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QMessageBox, QMenu, QFrame, QDialog, QTextEdit, QDialog, QInputDialog,
-                             QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QCheckBox, QPushButton, QScrollArea, QDesktopWidget, QSizeGrip)
+                             QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QCheckBox, QPushButton, QScrollArea, QDesktopWidget, QSizePolicy, QSizeGrip)
 from PyQt5.QtMultimedia import QSound, QMediaPlayer, QMediaPlaylist, QMediaContent
 from PyQt5.QtCore import Qt, QTimer, QPoint, QUrl, pyqtSignal, QEvent, QSettings
 from PyQt5.QtGui import QMovie, QPixmap, QFontDatabase, QFont, QIcon
@@ -329,34 +329,37 @@ class NotificationDialog(QDialog):
 class ToDoItemWidget(QWidget):
     def __init__(self, task_text=""):
         super().__init__()
-        # Set the fixed size for the entire widget
-        self.setFixedSize(140, 30)
+        
+        # Increase the overall item size
+        self.setFixedSize(300, 40)
         
         # Create a horizontal layout for the checkbox, text, and delete button
         layout = QHBoxLayout(self)
         layout.setContentsMargins(10, 5, 10, 5)
         layout.setSpacing(10)
         
-        # Apply the background style via stylesheet (without width/height)
-        # self.setStyleSheet("""
-        #     QWidget {
-        #         background-color: #FFF4E2;
-        #         border: 1px solid #ccc;
-        #         border-radius: 10px;
-        #         width: 220px;
-        #         height: 30px;
-        #     }
-        # """)
+        # Style the background of this widget (no width/height here)
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #FFF4E2;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+            }
+        """)
 
-        # Create the checkbox with custom style
+        # Create the checkbox with a custom style
         self.checkbox = QCheckBox(self)
+        self.checkbox.setFixedWidth(16)
         self.checkbox.setStyleSheet("""
+            QCheckBox {
+                background: transparent;
+            }
             QCheckBox::indicator {
                 width: 16px;
                 height: 16px;
                 border: 1px solid #000;
-                border-radius: 3px;
-                background: #fff;
+                border-radius: 0px;
+                background: #FFF4E2;  /* match the widget background */
             }
             QCheckBox::indicator:checked {
                 background: #4CAF50;
@@ -367,21 +370,27 @@ class ToDoItemWidget(QWidget):
         layout.addWidget(self.checkbox)
         
         # Create a QLineEdit for the task text
+        #  - background matches widget so it blends in
+        #  - use an expanding size policy so it takes up extra horizontal space
         self.task_line = QLineEdit(self)
+        self.task_line.setFixedWidth(100)  # Adjust to taste
         self.task_line.setPlaceholderText("New Task")
         self.task_line.setText(task_text)
         self.task_line.setStyleSheet("border: none; background: #FFF4E2; font-size: 14px;")
         layout.addWidget(self.task_line)
         
         # Create a delete button for the task
+        #  - add padding and maybe a minimum width to fit "Delete" comfortably
         self.delete_button = QPushButton("Delete", self)
+        self.delete_button.setFixedWidth(50)
         self.delete_button.setStyleSheet("""
             QPushButton {
                 background-color: #ff6666;
                 border: none;
                 border-radius: 5px;
                 color: white;
-                padding: 5px;
+                padding: 5px 10px;  /* more horizontal padding */
+                min-width: 50px;    /* ensure enough space for text */
             }
             QPushButton:hover {
                 background-color: #ff4d4d;
@@ -391,11 +400,13 @@ class ToDoItemWidget(QWidget):
         layout.addWidget(self.delete_button)
     
     def update_strikethrough(self, checked):
+        """Toggle strikethrough on the text if the checkbox is checked."""
         font = self.task_line.font()
         font.setStrikeOut(checked)
         self.task_line.setFont(font)
     
     def delete_self(self):
+        """Remove this item from its parent layout."""
         parent_layout = self.parentWidget().layout()
         parent_layout.removeWidget(self)
         self.deleteLater()
