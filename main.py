@@ -1,12 +1,11 @@
 import sys
 import time
 from pathlib import Path
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QMessageBox, QMenu
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QMessageBox, QMenu, QDesktopWidget
 from PyQt5.QtMultimedia import QSound
 from PyQt5.QtCore import Qt, QTimer, QPoint
 from PyQt5.QtGui import QMovie, QPixmap, QFontDatabase, QFont
 import pyautogui
- 
 
 class CatBreakReminder(QMainWindow):
     def __init__(self):
@@ -72,13 +71,13 @@ class CatBreakReminder(QMainWindow):
         self.timer_label.setAlignment(Qt.AlignCenter)
         self.timer_label.setText("Water: --m | Eyes: --m | Stretch: --m")
         self.timer_label.setFont(font)  # Apply custom font
-        self.timer_label.setStyleSheet("color: #3b3227; background-color: #f0e5d2;")  # Pastel Pink Change timer_label text color and background color 
+        self.timer_label.setStyleSheet("color: #3b3227; background-color: #f0e5d2;")  # Pastel Pink, also wtf is this parameter
      
      
         # --- Initialize Reminder Timers ---
         self.start_time = time.time()
         self.water_interval = 40 * 60      # 40 minutes
-        self.eye_interval = 20 * 60        # 20 minutes
+        self.eye_interval = 0.1 * 60        # 20 minutes
         self.stretch_interval = 2 * 60 * 60 # 2 hours
 
         self.last_water_time = self.start_time
@@ -122,8 +121,8 @@ class CatBreakReminder(QMainWindow):
         # Eye break reminder
         if current_time - self.last_eye_time >= self.eye_interval:
             QSound.play("meow.wav")
-            self.change_animation(self.move_excited, "Cat is napping while you rest your eyes!")
-            result = self.show_notification("Time to take an eye break! Look at something far away for 20 seconds.", "eye")
+            self.change_animation(self.move_excited, "Cat is massaging their eyes!")
+            result = self.show_notification("Time to take an eye break! Look at something far away for a little bit.", "eye")
             if result == QMessageBox.Yes:
                 self.last_eye_time = current_time
 
@@ -136,23 +135,65 @@ class CatBreakReminder(QMainWindow):
                 self.last_stretch_time = current_time
 
     def show_notification(self, message, animation_type):
-        # First confirmation popup
-        reply = QMessageBox.question(self, "Cat Reminder",
-                                     message + "\n\nDid you complete this task?",
-                                     QMessageBox.Yes | QMessageBox.No)
+        def create_dialog(msg_text):
+            msg_box = QMessageBox(self)
+            msg_box.setWindowTitle("Cat Reminder")
+            msg_box.setText(msg_text)
+            msg_box.setIcon(QMessageBox.Question)
+            msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+
+            # Apply font and style
+            msg_box.setFont(self.status_label.font())
+            msg_box.setStyleSheet("""
+                    QMessageBox {
+                        background-color: #fbd2b3;
+                    }
+                    QLabel {
+                        color: #000000;
+                        font-size: 12px;
+                    }
+                    QPushButton {
+                        background-color: #d78c77;
+                        color: #000000;
+                        padding: 6px 14px;
+                        border: none;
+                        border-radius: 5px;
+                    }
+                    QPushButton:hover {
+                        background-color: #eb9486;
+                        font-size: 8px;
+                    }
+                    QPushButton:pressed {
+                        background-color: #5E81AC;
+                        font-size: 8px;
+                    }
+                """)
+
+            # Force the layout to calculate before moving
+            msg_box.ensurePolished()
+            msg_box.adjustSize()
+            msg_box.repaint()  # Force geometry update
+
+            # Center on screen
+            screen_geometry = QApplication.primaryScreen().availableGeometry()
+            msg_box_geometry = msg_box.frameGeometry()
+            msg_box_geometry.moveCenter(screen_geometry.center())
+            msg_box.move(msg_box_geometry.topLeft())
+
+            return msg_box.exec_()
+
+        # First popup
+        reply = create_dialog(message + "\n\nDid you complete this task?")
         if reply == QMessageBox.Yes:
             self.change_animation(self.movie_idle, "Cat is watching you work...")
             return reply
         else:
-            # If first answer is No, show crying animation and ask again
             self.change_animation(self.movie_cry, "Cat is crying because you didn't complete the task!")
-            second_reply = QMessageBox.question(self, "Cat Reminder",
-                                                "Are you sure you didn't complete the task?",
-                                                QMessageBox.Yes | QMessageBox.No)
+            second_reply = create_dialog("Are you sure you didn't complete the task?")
             if second_reply == QMessageBox.Yes:
                 self.cat_die()
             else:
-                QTimer.singleShot(5000, self.reset_to_idle)
+                QTimer.singleShot(50000, self.reset_to_idle)
             return reply
 
     def change_animation(self, movie, status_message):
