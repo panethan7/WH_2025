@@ -139,6 +139,8 @@ class ToDoListWidget(QWidget):
         """)
         self.plus_button.clicked.connect(self.add_task)
         main_layout.addWidget(self.plus_button)
+        # Allow dragging of the window
+        self.offset = QPoint()
         
     def add_task(self):
         # Create a new to‑do item and insert it before the stretch
@@ -159,6 +161,8 @@ class ToDoListWidget(QWidget):
             self.showMinimized()
         elif action == close_action:
             self.close()
+
+    
 
 
 # ---------------------------
