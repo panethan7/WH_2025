@@ -2,7 +2,7 @@ import sys
 import time
 from pathlib import Path
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QMessageBox, QMenu, QFrame, QDialog, QTextEdit, QDialog, QInputDialog,
-                             QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QCheckBox, QPushButton, QScrollArea, QDesktopWidget)
+                             QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QCheckBox, QPushButton, QScrollArea, QDesktopWidget, QSizeGrip)
 from PyQt5.QtMultimedia import QSound, QMediaPlayer, QMediaPlaylist, QMediaContent
 from PyQt5.QtCore import Qt, QTimer, QPoint, QUrl, pyqtSignal, QEvent, QSettings
 from PyQt5.QtGui import QMovie, QPixmap, QFontDatabase, QFont, QIcon
@@ -114,8 +114,16 @@ class ChatDialog(QDialog):
                 background-color: #ccb59f;
             }
         """)
-
+        
         self.input_layout.addWidget(self.input_field)
+
+        default_font = self.conversation.font()
+        self.chat_font_size = default_font.pointSize() if default_font.pointSize() > 0 else 10
+        self.chat_font = QFont(default_font)
+        self.chat_font.setPointSize(self.chat_font_size)
+        self.conversation.setFont(self.chat_font)
+        self.input_field.setFont(self.chat_font)
+        
         self.input_layout.addWidget(self.send_button)
         self.container_layout.addLayout(self.input_layout)
 
@@ -123,6 +131,10 @@ class ChatDialog(QDialog):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(self.container_frame)
+
+        # Size change
+        self.size_grip = QSizeGrip(self)
+        self.container_layout.addWidget(self.size_grip, 0, Qt.AlignBottom | Qt.AlignRight)
 
         # --- Connect Signals and Slots ---
         self.send_button.clicked.connect(self.send_message)
@@ -179,6 +191,29 @@ class ChatDialog(QDialog):
             cat_response = "Error: " + str(e)
         self.chat_history.append({'role': 'model', 'parts': [cat_response]})
         self.conversation.append(f"<b>Cat:</b> {cat_response}")
+
+    def increase_font(self):
+        self.chat_font_size += 1
+        self.chat_font.setPointSize(self.chat_font_size)
+        self.conversation.setFont(self.chat_font)
+        self.input_field.setFont(self.chat_font)
+
+    def decrease_font(self):
+        if self.chat_font_size > 1:
+            self.chat_font_size -= 1
+            self.chat_font.setPointSize(self.chat_font_size)
+            self.conversation.setFont(self.chat_font)
+            self.input_field.setFont(self.chat_font)
+
+    def contextMenuEvent(self, event):
+        menu = QMenu(self)
+        increase_action = menu.addAction("Increase Font")
+        decrease_action = menu.addAction("Decrease Font")
+        action = menu.exec_(event.globalPos())
+        if action == increase_action:
+            self.increase_font()
+        elif action == decrease_action:
+            self.decrease_font()
 
 # ---------------------------
 # To‑Do List Item Widget
@@ -312,6 +347,9 @@ class ToDoListWidget(QWidget):
         """)
         self.plus_button.clicked.connect(self.add_task)
         main_layout.addWidget(self.plus_button)
+
+        self.size_grip = QSizeGrip(self)
+        main_layout.addWidget(self.size_grip, 0, Qt.AlignBottom | Qt.AlignRight)
         
     def add_task(self):
         # Create a new to‑do item and insert it before the stretch
@@ -562,9 +600,9 @@ class CatBreakReminder(QMainWindow):
         menu = QMenu(self)
         chat_action = menu.addAction("Chat with Cat")
         to_do = menu.addAction("To-Do List")
-        api_settings_menu = menu.addMenu("API Settings")
-        set_api_action = api_settings_menu.addAction("Set API Key")
-        delete_api_action = api_settings_menu.addAction("Delete API Key")
+        # api_settings_menu = menu.addMenu("API Settings")
+        # set_api_action = api_settings_menu.addAction("Set API Key")
+        # delete_api_action = api_settings_menu.addAction("Delete API Key")
         minimize_action = menu.addAction("Minimize")
         quit_action = menu.addAction("Quit")
         action = menu.exec_(self.mapToGlobal(event.pos()))
@@ -576,10 +614,10 @@ class CatBreakReminder(QMainWindow):
             self.showMinimized()
         elif action == chat_action:
             self.open_chat()
-        elif action == set_api_action:
-            self.open_api_key_dialog()
-        elif action == delete_api_action:
-            self.delete_api_key()
+        # elif action == set_api_action:
+        #     self.open_api_key_dialog()
+        # elif action == delete_api_action:
+        #     self.delete_api_key()
 
     def open_todo_list(self):
         self.todo_window = ToDoListWidget()
@@ -596,23 +634,23 @@ class CatBreakReminder(QMainWindow):
         chat_dialog.setWindowModality(Qt.ApplicationModal)
         chat_dialog.exec_()
     
-    def open_api_key_dialog(self):
-        new_key, ok = QInputDialog.getText(self, "Set API Key", "Enter your API key:")
-        if ok and new_key:
-            settings = QSettings("MyCompany", "CatBreakReminder")
-            settings.setValue("api_key", new_key)
-            genai.configure(api_key=new_key)
-            QMessageBox.information(self, "API Key Set", "The API key has been updated.")
+    # def open_api_key_dialog(self):
+    #     new_key, ok = QInputDialog.getText(self, "Set API Key", "Enter your API key:")
+    #     if ok and new_key:
+    #         settings = QSettings("MyCompany", "CatBreakReminder")
+    #         settings.setValue("api_key", new_key)
+    #         genai.configure(api_key=new_key)
+    #         QMessageBox.information(self, "API Key Set", "The API key has been updated.")
 
-    def delete_api_key(self):
-        reply = QMessageBox.question(self, "Delete API Key",
-                                    "Are you sure you want to delete the stored API key?",
-                                    QMessageBox.Yes | QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            settings = QSettings("MyCompany", "CatBreakReminder")
-            settings.remove("api_key")
-            genai.configure(api_key="")
-            QMessageBox.information(self, "API Key Deleted", "The API key has been removed.")
+    # def delete_api_key(self):
+    #     reply = QMessageBox.question(self, "Delete API Key",
+    #                                 "Are you sure you want to delete the stored API key?",
+    #                                 QMessageBox.Yes | QMessageBox.No)
+    #     if reply == QMessageBox.Yes:
+    #         settings = QSettings("MyCompany", "CatBreakReminder")
+    #         settings.remove("api_key")
+    #         genai.configure(api_key="")
+    #         QMessageBox.information(self, "API Key Deleted", "The API key has been removed.")
 
     # def increase_size(self):
     #     # Increase current window size by 20%
