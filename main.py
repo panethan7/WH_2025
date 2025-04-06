@@ -1,13 +1,158 @@
 import sys
 import time
 from pathlib import Path
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QMessageBox, QMenu
-from PyQt5.QtMultimedia import QSound
-from PyQt5.QtCore import Qt, QTimer, QPoint
-from PyQt5.QtGui import QMovie, QPixmap, QFontDatabase, QFont
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QMessageBox, QMenu,
+                             QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QCheckBox, QPushButton, QScrollArea)
+from PyQt5.QtMultimedia import QSound, QMediaPlayer, QMediaPlaylist, QMediaContent
+from PyQt5.QtCore import Qt, QTimer, QPoint, QUrl
+from PyQt5.QtGui import QMovie, QPixmap, QFontDatabase, QFont, QIcon
 import pyautogui
- 
+# ---------------------------
+# To‑Do List Item Widget
+# ---------------------------
+class ToDoItemWidget(QWidget):
+    def __init__(self, task_text=""):
+        super().__init__()
+        # Set the fixed size for the entire widget
+        self.setFixedSize(140, 30)
+        
+        # Create a horizontal layout for the checkbox, text, and delete button
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(10, 5, 10, 5)
+        layout.setSpacing(10)
+        
+        # Apply the background style via stylesheet (without width/height)
+        # self.setStyleSheet("""
+        #     QWidget {
+        #         background-color: #FFF4E2;
+        #         border: 1px solid #ccc;
+        #         border-radius: 10px;
+        #         width: 220px;
+        #         height: 30px;
+        #     }
+        # """)
 
+        # Create the checkbox with custom style
+        self.checkbox = QCheckBox(self)
+        self.checkbox.setStyleSheet("""
+            QCheckBox::indicator {
+                width: 16px;
+                height: 16px;
+                border: 1px solid #000;
+                border-radius: 3px;
+                background: #fff;
+            }
+            QCheckBox::indicator:checked {
+                background: #4CAF50;
+                border: 1px solid #000;
+            }
+        """)
+        self.checkbox.toggled.connect(self.update_strikethrough)
+        layout.addWidget(self.checkbox)
+        
+        # Create a QLineEdit for the task text
+        self.task_line = QLineEdit(self)
+        self.task_line.setPlaceholderText("New Task")
+        self.task_line.setText(task_text)
+        self.task_line.setStyleSheet("border: none; background: #FFF4E2; font-size: 14px;")
+        layout.addWidget(self.task_line)
+        
+        # Create a delete button for the task
+        self.delete_button = QPushButton("Delete", self)
+        self.delete_button.setStyleSheet("""
+            QPushButton {
+                background-color: #ff6666;
+                border: none;
+                border-radius: 5px;
+                color: white;
+                padding: 5px;
+            }
+            QPushButton:hover {
+                background-color: #ff4d4d;
+            }
+        """)
+        self.delete_button.clicked.connect(self.delete_self)
+        layout.addWidget(self.delete_button)
+    
+    def update_strikethrough(self, checked):
+        font = self.task_line.font()
+        font.setStrikeOut(checked)
+        self.task_line.setFont(font)
+    
+    def delete_self(self):
+        parent_layout = self.parentWidget().layout()
+        parent_layout.removeWidget(self)
+        self.deleteLater()
+
+# ---------------------------
+# To‑Do List Window
+# ---------------------------
+class ToDoListWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("To‑Do List")
+        self.resize(320, 480)
+        # Remove the window icon
+        self.setWindowIcon(QIcon())
+        # Set the entire window background color (outer window)
+        self.setStyleSheet("background-color: #AA7045;")
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+
+        
+        # Main vertical layout for the entire window
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(10, 10, 10, 10)
+        main_layout.setSpacing(10)
+        
+        # Container widget for the list items with the same background color as the outer window
+        self.list_container = QWidget()
+        self.list_container.setStyleSheet("""
+            QWidget {
+                background-color: #AA7045;
+                border: 2px solid #dcd0b0;
+            }
+        """)
+        self.list_layout = QVBoxLayout(self.list_container)
+        self.list_layout.setSpacing(10)
+        self.list_layout.setContentsMargins(10, 10, 10, 10)
+        self.list_layout.addStretch()  # Add stretch at the end to push items upward
+        
+        # Scroll area for the list items
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setWidget(self.list_container)
+        main_layout.addWidget(self.scroll_area)
+        
+        # Plus button at the bottom to add a new task
+        self.plus_button = QPushButton("+", self)
+        self.plus_button.setFixedHeight(40)
+        self.plus_button.setStyleSheet("""
+            QPushButton {
+                font-size: 24px;
+                border: 2px solid #dcd0b0;
+                border-radius: 20px;
+                background-color: #dcd0b0;
+            }
+            QPushButton:hover {
+                background-color: #cfc0a0;
+            }
+        """)
+        self.plus_button.clicked.connect(self.add_task)
+        main_layout.addWidget(self.plus_button)
+        
+    def add_task(self):
+        # Create a new to‑do item and insert it before the stretch
+        item = ToDoItemWidget()
+        count = self.list_layout.count()
+        if count > 0:
+            # Remove the stretch item (last item)
+            self.list_layout.takeAt(count - 1)
+        self.list_layout.addWidget(item)
+        self.list_layout.addStretch()
+
+# ---------------------------
+# Main App (Cat Break Reminder)
+# ---------------------------
 class CatBreakReminder(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -186,24 +331,20 @@ class CatBreakReminder(QMainWindow):
       # --- Context Menu with additional options ---
     def contextMenuEvent(self, event):
         menu = QMenu(self)
-        # chat_action = menu.addAction("Chat with Cat")
-        # wellness_action = menu.addAction("Wellness Advice")
-        # increase_action = menu.addAction("Increase Size")
-        # decrease_action = menu.addAction("Decrease Size")
+        to_do = menu.addAction("To-Do List")
+        minimize_action = menu.addAction("Minimize List")
         quit_action = menu.addAction("Quit")
         action = menu.exec_(self.mapToGlobal(event.pos()))
-        # if action == chat_action:
-        #     chat_dialog = ChatDialog(self)
-        #     chat_dialog.exec_()
-        # elif action == wellness_action:
-        #     wellness_dialog = WellnessDialog(self)
-        #     wellness_dialog.exec_()
-        # elif action == increase_action:
-        #     self.increase_size()
-        # elif action == decrease_action:
-        #     self.decrease_size()
         if action == quit_action:
             self.close()
+        elif action == to_do:
+            self.open_todo_list()
+        elif action == minimize_action:
+            self.showMinimized()
+
+    def open_todo_list(self):
+        self.todo_window = ToDoListWidget()
+        self.todo_window.show()
 
     # def increase_size(self):
     #     # Increase current window size by 20%
