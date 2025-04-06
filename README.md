@@ -30,8 +30,7 @@ Purrfect Care was built to merge technology with self-care practices. Our goal i
 
 ## How We Built It
 
-- **Languages & Frameworks:** Python, PyQt5, and Pygame  
-- **AI Integration:** ChatGPT, Claude  
+- **Languages & Frameworks:** Python, PyQt5, and Pygame   
 - **Design:** Custom GIFs and images arranged using coordinate-based placement  
 - **Challenges:**  
   - Adapting to various laptop screen sizes.
@@ -103,25 +102,6 @@ purrfect-care/
 └── README.md                # This documentation file
 ```
 
-## Contributing
-
-Contributions are welcome! To help improve Purrfect Care and further promote wellness:
-
-1. Fork the repository.
-2. Create your feature branch:
-   ```bash
-   git checkout -b feature/your-new-feature
-   ```
-3. Commit your changes:
-   ```bash
-   git commit -am 'Add a new wellness feature'
-   ```
-4. Push to your branch:
-   ```bash
-   git push origin feature/your-new-feature
-   ```
-5. Open a pull request with a detailed description of your improvements.
-
 ## License
 
 This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
@@ -138,4 +118,3 @@ This project is licensed under the MIT License – see the [LICENSE](LICENSE) fi
 ---
 
 Enjoy your breaks, stay healthy, and let Patches remind you to care for yourself while you work!
-```
