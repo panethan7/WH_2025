@@ -75,7 +75,7 @@ class CatBreakReminder(QMainWindow):
      
         # --- Initialize Reminder Timers ---
         self.start_time = time.time()
-        self.water_interval = 0.1 * 60      # 40 minutes
+        self.water_interval = 40 * 60      # 40 minutes
         self.eye_interval = 20 * 60        # 20 minutes
         self.stretch_interval = 2 * 60 * 60 # 2 hours
 
