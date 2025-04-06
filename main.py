@@ -161,11 +161,9 @@ class CatBreakReminder(QMainWindow):
                     }
                     QPushButton:hover {
                         background-color: #eb9486;
-                        font-size: 8px;
                     }
                     QPushButton:pressed {
                         background-color: #5E81AC;
-                        font-size: 8px;
                     }
                 """)
 
