@@ -2,7 +2,7 @@ import sys
 import time
 from pathlib import Path
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QMessageBox, QMenu, QFrame, QDialog, QTextEdit, QDialog, QInputDialog,
-                             QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QCheckBox, QPushButton, QScrollArea, QDesktopWidget, QSizePolicy)
+                             QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QCheckBox, QPushButton, QScrollArea, QDesktopWidget, QSizePolicy, QSizeGrip)
 from PyQt5.QtMultimedia import QSound, QMediaPlayer, QMediaPlaylist, QMediaContent
 from PyQt5.QtCore import Qt, QTimer, QPoint, QUrl, pyqtSignal, QEvent, QSettings
 from PyQt5.QtGui import QMovie, QPixmap, QFontDatabase, QFont, QIcon
@@ -114,8 +114,16 @@ class ChatDialog(QDialog):
                 background-color: #ccb59f;
             }
         """)
-
+        
         self.input_layout.addWidget(self.input_field)
+
+        default_font = self.conversation.font()
+        self.chat_font_size = default_font.pointSize() if default_font.pointSize() > 0 else 10
+        self.chat_font = QFont(default_font)
+        self.chat_font.setPointSize(self.chat_font_size)
+        self.conversation.setFont(self.chat_font)
+        self.input_field.setFont(self.chat_font)
+        
         self.input_layout.addWidget(self.send_button)
         self.container_layout.addLayout(self.input_layout)
 
@@ -123,6 +131,10 @@ class ChatDialog(QDialog):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(self.container_frame)
+
+        # Size change
+        self.size_grip = QSizeGrip(self)
+        self.container_layout.addWidget(self.size_grip, 0, Qt.AlignBottom | Qt.AlignRight)
 
         # --- Connect Signals and Slots ---
         self.send_button.clicked.connect(self.send_message)
@@ -179,6 +191,29 @@ class ChatDialog(QDialog):
             cat_response = "Error: " + str(e)
         self.chat_history.append({'role': 'model', 'parts': [cat_response]})
         self.conversation.append(f"<b>Cat:</b> {cat_response}")
+
+    def increase_font(self):
+        self.chat_font_size += 1
+        self.chat_font.setPointSize(self.chat_font_size)
+        self.conversation.setFont(self.chat_font)
+        self.input_field.setFont(self.chat_font)
+
+    def decrease_font(self):
+        if self.chat_font_size > 1:
+            self.chat_font_size -= 1
+            self.chat_font.setPointSize(self.chat_font_size)
+            self.conversation.setFont(self.chat_font)
+            self.input_field.setFont(self.chat_font)
+
+    def contextMenuEvent(self, event):
+        menu = QMenu(self)
+        increase_action = menu.addAction("Increase Font")
+        decrease_action = menu.addAction("Decrease Font")
+        action = menu.exec_(event.globalPos())
+        if action == increase_action:
+            self.increase_font()
+        elif action == decrease_action:
+            self.decrease_font()
 
 # ---------------------------
 # To‑Do List Item Widget
@@ -323,6 +358,9 @@ class ToDoListWidget(QWidget):
         """)
         self.plus_button.clicked.connect(self.add_task)
         main_layout.addWidget(self.plus_button)
+
+        self.size_grip = QSizeGrip(self)
+        main_layout.addWidget(self.size_grip, 0, Qt.AlignBottom | Qt.AlignRight)
         
     def add_task(self):
         # Create a new to‑do item and insert it before the stretch
@@ -415,7 +453,7 @@ class CatBreakReminder(QMainWindow):
         self.timer_label.setStyleSheet("color: #3b3227; background-color: #f0e5d2;")  # Pastel Pink, also wtf is this parameter
 
         # API Key
-        settings = QSettings("MyCompany", "CatBreakReminder")
+        settings = QSettings("MyCompany", "CatBreakReminder") # This where .env API key goes????
         stored_key = settings.value("api_key", "")
         if stored_key:
             genai.configure(api_key=stored_key)
@@ -556,7 +594,6 @@ class CatBreakReminder(QMainWindow):
         self.cat_dead = True
         self.status_label.setText("The cat has died. RIP.")
         self.cat_label.setPixmap(self.dead_pixmap)
-        # Optionally stop the timer from checking further reminders
         self.check_timer.stop()
 
     # --- Enable Window Dragging ---
@@ -573,7 +610,7 @@ class CatBreakReminder(QMainWindow):
         menu = QMenu(self)
         chat_action = menu.addAction("Chat with Cat")
         to_do = menu.addAction("To-Do List")
-        api_settings_menu = menu.addMenu("API Settings")
+        api_settings_menu = menu.addMenu("Settings")
         set_api_action = api_settings_menu.addAction("Set API Key")
         delete_api_action = api_settings_menu.addAction("Delete API Key")
         minimize_action = menu.addAction("Minimize")
